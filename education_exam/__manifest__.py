@@ -40,6 +40,10 @@
         #'views/education_academic_year.xml',
         'Data/data.xml',
         'views/examination.xml',
+        'views/q_paper_template.xml',
+        'views/q_paper_template_view.xml',
+        'views/question_answer_template.xml',
+
         #'views/odoo_customization.xml'
 
         # 'views/exam_valuation.xml',

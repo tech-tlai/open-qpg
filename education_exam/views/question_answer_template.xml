@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="q_ans_paper_line_id" model="ir.actions.report">
+        <field name="name">Question Paper</field>
+        <field name="model">question.paper.line</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">education_exam.q_ans_paper_tamplate_id</field>
+        <field name="report_file">education_exam.q_ans_paper_tamplate_id</field>
+    </record>
+
+    <template id="q_ans_paper_tamplate_id">
+        <t t-call="web.html_container">
+            <div class="page">
+                <h2>Question Paper</h2>
+                <t t-if="docs">
+                    <strong>EXAM NAME :</strong> <span t-field="docs.qp_id_line_id.exam_name"/>
+                    <br/>
+                    <strong>VERSION NUMBER:</strong> <span t-field="docs.qp_id_line_id.paper_id"/>
+                    <br/>
+                    <strong>TOTAL TIME:</strong> <span t-field="docs.qp_id_line_id.version_master_id.cvm_total_time"/>
+                    <br/>
+                    <strong>TOTAL QUESTIONS :</strong> <span t-field="docs.qp_id_line_id.version_master_id.cvm_total_questions"/>
+                    <br/>
+                    <strong>STANDARD :</strong> <span t-field="docs.qp_id_line_id.standard_dropdown"/>
+                    <br/>
+                    <strong>MEDIUM :</strong> <span t-field="docs.qp_id_line_id.medium"/>
+                    <t t-set="index" t-value="0"/>
+                    <t t-foreach="docs" t-as="o">
+                        <t t-set="index" t-value="index + 1"/>
+                        <div class="oe_structure"/>
+                        <p>
+                            <strong><span t-esc="index"/>.
+                            </strong> <!-- Serial Number -->
+                            <span t-field="o.question_text"/>
+                        </p>
+                        <p>
+                            <strong>A.</strong>
+                            <span t-field="o.option1"/>
+                            <br/> <!-- First option -->
+                            <strong>B.</strong>
+                            <span t-field="o.option2"/>
+                            <br/> <!-- Second option -->
+                            <strong>C.</strong>
+                            <span t-field="o.option3"/>
+                            <br/> <!-- Third option -->
+                            <strong>D.</strong>
+                            <span t-field="o.option4"/> <!-- Fourth option -->
+                        </p>
+                        <t t-if="request.env.user.has_group('base.group_system')">
+                            <p style="color: red;"><strong>Ans: </strong><span t-field="o.correct_answer"/></p>
+                        </t>
+                    </t>
+                </t>
+                <t t-else="">
+                    <p>No questions available.</p>
+                </t>
+            </div>
+        </t>
+    </template>
+</odoo>

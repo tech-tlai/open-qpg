@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-
         <record id="examination_form" model="ir.ui.view">
             <field name="name">examination_form.form</field>
             <field name="model">education.exam</field>
             <field name="arch" type="xml">
                 <!--                <field name="context">{'form_view_initial_mode': 'edit'}</field>-->
-                <form create="0" delete="0" >
+                <form create="0" delete="0">
                     <header>
 
                         <field name="state" readonly="1" widget="statusbar" statusbar_visible="draft,close"/>
@@ -22,41 +21,52 @@
                         <group>
                             <group>
                                 <group>
-                                <field name="exam_name" readonly="1"  style="width:300px;"/>
-                                <field name="create_date" readonly="1" invisible="1"/>
-                                <field name="exam_type" readonly="1" invisible="0"/>
-                                <field name="create_uid" groups="education_exam.group_education_principal"/>
-                                <button name="save_details" type="object" invisible="1"
-                                        class="oe_highlight" string="Save" groups="education_exam.group_education_principal"/>
-                                <button name="pull_data" invisible="1" type="object" class="oe_highlight" string="Pull data" groups="education_exam.group_education_principal" />
-                                                                </group>
+                                    <field name="exam_name" readonly="0" style="width:300px;"/>
+                                    <field name="create_date" readonly="1" invisible="1"/>
+                                    <field name="exam_type" readonly="1" invisible="0"/>
+                                    <field name="create_uid" groups="education_exam.group_education_principal"/>
+                                    <button name="save_details" type="object" invisible="1"
+                                            class="oe_highlight" string="Save"
+                                            groups="education_exam.group_education_principal"/>
+                                    <button name="pull_data" invisible="1" type="object" class="oe_highlight"
+                                            string="Pull data" groups="education_exam.group_education_principal"/>
+                                </group>
 
-                                <button name="close_session"  invisible="1" type="object" class="oe_highlight" string="Close session"/>
+                                <button name="close_session" invisible="1" type="object" class="oe_highlight"
+                                        string="Close session"/>
                             </group>
                             <group>
-
                             </group>
                         </group>
                         <group>
 
-                            <field name="cdac_schedule_id" groups="education_exam.group_education_principal" readonly="1"/>
-                            <field name="participant_pk" groups="education_exam.group_education_principal" readonly="1"/>
+                            <field name="schedule_id"
+                                   groups="education_exam.group_education_principal"
+                                   readonly="1"
+                                   placeholder="Auto-generated Schedule ID"/>
+                            <field name="participant_pk" groups="education_exam.group_education_principal" readonly="1"
+                                   invisible="1"/>
+
                         </group>
 
                     </group>
                     <group>
                         <group>
                             <group>
-                                <field name="medium" readonly="1"  style="width:100px;"/>
-                                <field name="standard_dropdown" readonly="1"/>
-                                <field name="term_id" options="{'no_create': True, 'no_create_edit':True,'no_open': True}" attrs="{'required': [('standard_dropdown','in',['5','6','7'])],'readonly': [('state', '=', 'close')],'invisible':['|', ('exam_type', 'in', ['3', '4']),('standard_dropdown','not in',['5','6','7'])]}"/>
-                                <field name="group_code" attrs="{'invisible': ['|', ('exam_type', 'in', ['3', '4']), ('standard_dropdown', 'not in', ['11', '12'])], 'readonly': [('state', '=','close')]}" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
-                                <field name="subject" options="{'no_create': True, 'no_create_edit':True,'no_open': True}" attrs="{'required': [('state', '=', 'draft')],'readonly': [('state', '=', 'close')]}" domain="subject_domain" />
-                                <field name="subject_domain" options="{'no_create': True, 'no_create_edit':True}" invisible="1"/>
+                                <field name="medium" style="width:100px;"/>
+                                <field name="standard_dropdown" readonly="0"/>
+                                <!--                                <field name="term_id" options="{'no_create': True, 'no_create_edit':True,'no_open': True}" attrs="{'required': [('standard_dropdown','in',['5','6','7'])],'readonly': [('state', '=', 'close')],'invisible':['|', ('exam_type', 'in', ['3', '4']),('standard_dropdown','not in',['5','6','7'])]}"/>-->
+                                <field name="group_code"
+                                       attrs="{'invisible': ['|', ('exam_type', 'in', ['3', '4']), ('standard_dropdown', 'not in', ['11', '12'])], 'readonly': [('state', '=','close')]}"
+                                       options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                                <field name="subject"/>
 
                             </group>
                             <group>
-                                <field name="selection_criteria"   options="{'no_create': True, 'no_create_edit':True,'no_open': True}" widget="radio" attrs="{'required': [('state', '=', 'draft')],'readonly': [('state', '=', 'close')],'invisible': [('exam_type','in',['3','4'])]}"/>
+                                <field name="selection_criteria"
+                                       options="{'no_create': True, 'no_create_edit':True,'no_open': True}"
+                                       widget="radio"
+                                       attrs="{'required': [('state', '=', 'draft')],'readonly': [('state', '=', 'close')],'invisible': [('exam_type','in',['3','4'])]}"/>
                             </group>
 
                         </group>
@@ -64,9 +74,12 @@
 
 
                             <group>
-                                <field name="chapter_dropdown" options="{'no_create': True, 'no_create_edit':True,'no_open': True}" attrs="{'required': [('selection_criteria', '=', '2')],'readonly': [('state', '=', 'close')],'invisible': ['|', ('exam_type', 'in', ['3','4']),('selection_criteria', 'not in', ['2','3'])]}" domain="chapter_dropdown_domain"/>
+                                <field name="chapter_dropdown"
+                                       options="{'no_create': True, 'no_create_edit':True,'no_open': True}"
+                                       attrs="{'required': [('selection_criteria', '=', '2')],'readonly': [('state', '=', 'close')],'invisible': ['|', ('exam_type', 'in', ['3','4']),('selection_criteria', 'not in', ['2','3'])]}"
+                                       domain="chapter_dropdown_domain"/>
                                 <field name="chapter_dropdown_domain" invisible="1"/>
-                                <field name="topic_dropdown" options="{'no_create': True, 'no_create_edit':True,'no_open': True}" attrs="{'required': [('selection_criteria', '=', '3')],'readonly': [('state', '=', 'close')],'invisible': ['|', ('exam_type', 'in', ['3','4']),('selection_criteria', 'not in', ['3'])]}" domain="topic_dropdown_domain"/>
+                                <!--                                <field name="topic_dropdown" options="{'no_create': True, 'no_create_edit':True,'no_open': True}" attrs="{'required': [('selection_criteria', '=', '3')],'readonly': [('state', '=', 'close')],'invisible': ['|', ('exam_type', 'in', ['3','4']),('selection_criteria', 'not in', ['3'])]}" domain="topic_dropdown_domain"/>-->
                                 <field name="topic_dropdown_domain" invisible="1"/>
                             </group>
 
@@ -76,57 +89,69 @@
 
                         </group>
                         <group>
-                     <group>
-                        <button name="save_jn" class="oe_highlight" string="SaveJN" type="object" invisible="1"></button>
+                            <group>
+                                <button name="save_jn" class="oe_highlight" string="SaveJN" type="object"
+                                        invisible="1"></button>
 
-                    </group>
+                            </group>
 
                         </group>
-<!--  ###############################JEE NEET######################################search  jn########################################## -->
+                        <!--  ###############################JEE NEET######################################search  jn########################################## -->
                         <group>
-                            <button name="search_jn" class="oe_highlight" string="Search" attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','=','2')]}"
+                            <button name="search_jn" class="oe_highlight" string="Search"
+                                    attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','=','2')]}"
                                     type="object"></button>
                         </group>
 
                         <group>
-                            <button name="search_mcq" class="oe_highlight" string="Search"  attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['3','4'])]}"
+                            <button name="search_mcq" class="oe_highlight" string="Search"
+                                    attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['3','4'])]}"
                                     type="object"></button>
                         </group>
                     </group>
 
                     <group>
-                        <button name="select_all" type="object" attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','=','1')]}"
+                        <button name="select_all" type="object"
+                                attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','=','1')]}"
                                 class="oe_highlight" string="Select all"/>
-                         <button name="create_desc" class="oe_highlight" string="Create" attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['2','3','4'])]}"
-                                 type="object" ></button>
+                        <button name="create_desc" class="oe_highlight" string="Create"
+                                attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['2','3','4'])]}"
+                                type="object"></button>
                         <!--                        <button name="deselect_all" type="object"-->
                         <!--                                        class="oe_highlight" string="Deselect all"/>-->
                     </group>
                     <group>
-                        <field name="question_list" attrs="{'readonly': [('state', '!=', 'draft')],'invisible': [('exam_type', '=', '1')]}" class="custom-control custom-checkbox"
+                        <field name="question_list"
+                               attrs="{'readonly': [('state', '!=', 'draft')],'invisible': [('exam_type', '=', '1')]}"
+                               class="custom-control custom-checkbox"
                                widget="one2many_delete" type="xml">
-                            <tree create="0" delete="0" editable="top" class="custom_class_question" >
+                            <tree create="0" delete="0" editable="top" class="custom_class_question">
                                 <field name="checkbox" nolabel="1"/>
 
-                                    <field name="ql_criteria_name" readonly="1" style="text-align: left" attrs="{'column_invisible':[('parent.exam_type','in',['3','4'])]}"/>
-                                    <field name="ql_idx_id" readonly="1" style="text-align: left" invisible="1"/>
+                                <field name="ql_criteria_name" readonly="1" style="text-align: left"
+                                       attrs="{'column_invisible':[('parent.exam_type','in',['3','4'])]}"/>
+                                <field name="ql_idx_id" readonly="1" style="text-align: left" invisible="1"/>
                                 <field name="ql_name" readonly="1" style="text-align: left"/>
-                                <field name="ql_chapter" readonly="1" style="text-align: left" attrs="{'column_invisible':[('parent.exam_type','in',['3','4'])]}"/>
+                                <field name="ql_chapter" readonly="1" style="text-align: left"
+                                       attrs="{'column_invisible':[('parent.exam_type','in',['3','4'])]}"/>
                                 <field name="ql_q_count" readonly="1" style="text-align: left"/>
 
-<!--                                <field name="ql_difficulty" readonly="1" style="text-align: left" invisible="1" />-->
-                               <field name="ql_standard" readonly="1" style="text-align: left" attrs="{'column_invisible':[('parent.exam_type','=','2')]}"/>
+                                <!--                                <field name="ql_difficulty" readonly="1" style="text-align: left" invisible="1" />-->
+                                <field name="ql_standard" readonly="1" style="text-align: left"
+                                       attrs="{'column_invisible':[('parent.exam_type','=','2')]}"/>
 
                             </tree>
                         </field>
                     </group>
                     <group>
-                        <button name="create_group_mcq" class="oe_highlight" string="Add" attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['3','4'])]}"
+                        <button name="create_group_mcq" class="oe_highlight" string="Add"
+                                attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['3','4'])]}"
                                 type="object"></button>
                     </group>
 
-                     <group>
-                        <button name="create_jn" class="oe_highlight" string="Add" attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['1','2'])]}"
+                    <group>
+                        <button name="create_jn" class="oe_highlight" string="Add"
+                                attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['1','2'])]}"
                                 type="object"></button>
                     </group>
 
@@ -171,7 +196,9 @@
                                 <group>
                                     <!--                                        <button name="set_edit" class="oe_highlight" string="Edit set"-->
                                     <!--                                                type="object"></button>-->
-                                    <button name="set_deletion" class="oe_highlight" string="Delete Group" confirm="Do you want delete group?" attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['1','3','4'])]}"
+                                    <button name="set_deletion" class="oe_highlight" string="Delete Group"
+                                            confirm="Do you want delete group?"
+                                            attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['1','3','4'])]}"
                                             type="object"></button>
                                 </group>
 
@@ -181,33 +208,42 @@
                                        widget="one2many_delete" class="custom-control custom-checkbox">
 
                                     <tree create="0" delete="0" editable="top" class="custom_class_question">
-                                        <field name="checkbox" nolabel="1" attrs="{'column_invisible':[('parent.exam_type','in',['3','4'])]}"/>
+                                        <field name="checkbox" nolabel="1"
+                                               attrs="{'column_invisible':[('parent.exam_type','in',['3','4'])]}"/>
                                         <field name="set_number" readonly="1" style="text-align: left" invisible="0"/>
-                                        <field name="set_description" readonly="1" style="text-align: left" invisible="0"/>
-                                        <field name="qc_difficulty_text" readonly="1" style="text-align: left" attrs="{'column_invisible':  [('parent.exam_type', '=',  '2')]}"/>
+                                        <field name="set_description" readonly="1" style="text-align: left"
+                                               invisible="0"/>
+                                        <field name="qc_difficulty_text" readonly="1" style="text-align: left"
+                                               attrs="{'column_invisible':  [('parent.exam_type', '=',  '2')]}"/>
                                         <field name="set_count" readonly="1" style="text-align: left" invisible="0"/>
 
-                                            <field name="questions_insert" style="text-align: left" attrs="{'readonly': [('parent.state', '=', 'close')],'column_invisible':[('parent.exam_type','in',['3','4'])]}"/>
-                                            <field name="setsection" options="{'no_create': True, 'no_create_edit':True}" attrs="{'column_invisible':[('parent.exam_type','in',['3','4'])]}"/>
-                                        <field name="qc_subject_id" options="{'no_create': True, 'no_create_edit':True}" readonly="1" style="text-align: left" attrs="{'column_invisible':  [('parent.exam_type', '=',  '2')]}"/>
-<!--                                        <field name="set_subject" readonly="1" style="text-align: left" invisible="0"/>-->
-<!--                                             <field name="qc_criteria_name" readonly="1" style="text-align: left" invisible="1"/>-->
-<!--                                             <field name="qc_name" readonly="1" style="text-align: left" invisible="1"/>-->
+                                        <field name="questions_insert" style="text-align: left"
+                                               attrs="{'readonly': [('parent.state', '=', 'close')],'column_invisible':[('parent.exam_type','in',['3','4'])]}"/>
+                                        <field name="setsection" options="{'no_create': True, 'no_create_edit':True}"
+                                               attrs="{'column_invisible':[('parent.exam_type','in',['3','4'])]}"/>
+                                        <field name="qc_subject_id" options="{'no_create': True, 'no_create_edit':True}"
+                                               readonly="1" style="text-align: left"
+                                               attrs="{'column_invisible':  [('parent.exam_type', '=',  '2')]}"/>
+                                        <!--                                        <field name="set_subject" readonly="1" style="text-align: left" invisible="0"/>-->
+                                        <!--                                             <field name="qc_criteria_name" readonly="1" style="text-align: left" invisible="1"/>-->
+                                        <!--                                             <field name="qc_name" readonly="1" style="text-align: left" invisible="1"/>-->
 
-<!--                                            <field name="qc_difficulty" readonly="1" style="text-align: left" invisible="1"/>-->
-<!--                                            <field name="qc_chapter_id" readonly="1" style="text-align: left" invisible="1"/>-->
-                                            <field name="qc_standard" readonly="1" style="text-align: left" attrs="{'column_invisible':  [('parent.exam_type', '=',  '2')]}"/>
+                                        <!--                                            <field name="qc_difficulty" readonly="1" style="text-align: left" invisible="1"/>-->
+                                        <!--                                            <field name="qc_chapter_id" readonly="1" style="text-align: left" invisible="1"/>-->
+                                        <field name="qc_standard" readonly="1" style="text-align: left"
+                                               attrs="{'column_invisible':  [('parent.exam_type', '=',  '2')]}"/>
 
                                     </tree>
 
                                 </field>
                             </group>
                             <group>
-<!--                                <button name="confirm_exam" type="object" attrs="{'invisible': [('state', '!=', 'draft')]}"-->
-<!--                                        class="oe_highlight" string="Confirm"/>-->
+                                <!--                                <button name="confirm_exam" type="object" attrs="{'invisible': [('state', '!=', 'draft')]}"-->
+                                <!--                                        class="oe_highlight" string="Confirm"/>-->
                             </group>
                             <group>
-                                <button name="navigate_version" class="oe_highlight" attrs="{'invisible':[('exam_type', '=', '1')]}"
+                                <button name="navigate_version" class="oe_highlight"
+                                        attrs="{'invisible':[('exam_type', '=', '1')]}"
                                         string="Final submit for generation"
                                         type="object"></button>
                             </group>
@@ -216,27 +252,30 @@
 
                         <page string="Questions selected">
                             <group>
-                                <button name="question_deletion" class="oe_highlight" attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['1','3','4'])]}"
+                                <button name="question_deletion" class="oe_highlight"
+                                        attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['1','3','4'])]}"
                                         string="Remove Questions"
                                         type="object"></button>
                             </group>
                             <field name="question_set" attrs="{'readonly': [('state', '!=', 'draft')]}"
                                    widget="one2many_delete">
                                 <tree create="0" delete="0" editable="top">
-                                    <field name="checkbox" nolabel="1" attrs="{'column_invisible':[('parent.exam_type','in',['3','4'])]}"/>
+                                    <field name="checkbox" nolabel="1"
+                                           attrs="{'column_invisible':[('parent.exam_type','in',['3','4'])]}"/>
                                     <field name="q_text" readonly="1"/>
                                     <field name="subject_id" readonly="1"/>
                                     <field name="set_no" style="text-align: left" readonly="1"/>
                                     <field name="q_id" style="text-align: left" readonly="1"/>
-                                        <field name="ql_difficulty" style="text-align: left" readonly="1" invisible="1"/>
-                                    <field name="ql_difficulty_text" readonly="1" style="text-align: left" attrs="{'column_invisible':[('parent.exam_type','=','2')]}"/>
+                                    <field name="ql_difficulty" style="text-align: left" readonly="1" invisible="1"/>
+                                    <field name="ql_difficulty_text" readonly="1" style="text-align: left"
+                                           attrs="{'column_invisible':[('parent.exam_type','=','2')]}"/>
 
                                 </tree>
                             </field>
                         </page>
 
                     </notebook>
-              </form>
+                </form>
             </field>
         </record>
 
@@ -246,14 +285,74 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="reference"/>
-                    <field name="exam_name" />
+                    <field name="exam_name"/>
                     <field name="standard_dropdown"/>
+                    <field name="subject"/>
                     <field name="medium"/>
                     <field name="state"/>
-                    <field name="cdac_schedule_id"/>
+                    <field name="schedule_id"/>
                 </tree>
             </field>
             <!--            <field name="domain_force">[('create_uid', '=', user.id)]</field>-->
+        </record>
+        <!--        Landing Dash-->
+
+        <record id="dash_kanban" model="ir.ui.view">
+            <field name="name">dash.kanban.kanban</field>
+            <field name="model">dash.kanban</field>
+            <field name="arch" type="xml">
+                <kanban>
+                    <field name="name"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_global_click"
+                                 t-att-style="'width: 250px; height: 250px;
+                                 display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border: 1px solid #ddd; border-radius: 10px; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); background-color:' + (
+                record.name.raw_value == 'Design Paper View' and '#e3f2fd' or
+                record.name.raw_value == 'Design Paper Create' and '#e8f5e9' or
+                record.name.raw_value == 'Question Paper View' and '#fff3e0' or
+                '#f9f9f9'
+            )">
+
+                                <strong>
+                                    <field name="name"/>
+                                </strong>
+
+                                <t t-if="record.name.raw_value == 'Design Paper View'">
+                                    <button type="object" name="design_paper_view" class="btn btn-secondary"
+                                            t-on-click="doAction('action_for_type1')">
+                                        View
+                                    </button>
+                                </t>
+
+                                <t t-if="record.name.raw_value == 'Design Paper Create'">
+                                    <button type="object" name="design_paper_create" class="btn btn-secondary"
+                                            t-on-click="doAction('action_for_type2')">
+                                        Create
+                                    </button>
+                                </t>
+
+                                <t t-if="record.name.raw_value == 'Question Paper View'">
+                                    <button type="object" name="view_question_paper" class="btn btn-secondary"
+                                            t-on-click="doAction('action_for_type2')">
+                                        View
+                                    </button>
+                                </t>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="dash_kanban_view" model="ir.actions.act_window">
+            <field name="name">Dash Board</field>
+            <field name="res_model">dash.kanban</field>
+            <field name="view_mode">kanban</field>
+            <field name="context">{'create': False}</field>
+            <!--            <field name="target">current</field>-->
+            <!--            <field name="context">{"search_default_today_filter":1}</field>-->
+
         </record>
 
         <record id="examination_search" model="ir.ui.view">
@@ -263,6 +362,7 @@
                 <search>
                     <field name="reference"/>
                     <field name="exam_name"/>
+                    <field name="subject"/>
                     <field name="standard_dropdown"/>
                     <field name="medium"/>
                     <field name="state"/>
@@ -277,7 +377,7 @@
         <record id="act_examination_view" model="ir.actions.act_window">
             <field name="name">Design Paper</field>
             <field name="res_model">education.exam</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">kanban,tree,form</field>
             <field name="target">current</field>
             <field name="context">{"search_default_today_filter":1}</field>
 
@@ -290,12 +390,12 @@
             <field name="context">{"form_view_initial_mode": 'edit'}</field>
 
         </record>
-<!--        <record id="act_examination_view_edit" model="ir.rule">-->
-<!--        <field name="name">Design Paper Edit</field>-->
-<!--        <field name="model_id" ref="model_education_exam"/>-->
-<!--        <field name="domain_force">[('state', 'in', ('close','cancel'))]</field>-->
-<!--        <field name="groups" eval="[(4, ref('group_education_faculty'))]"/>-->
-<!--    </record>-->
+        <!--        <record id="act_examination_view_edit" model="ir.rule">-->
+        <!--        <field name="name">Design Paper Edit</field>-->
+        <!--        <field name="model_id" ref="model_education_exam"/>-->
+        <!--        <field name="domain_force">[('state', 'in', ('close','cancel'))]</field>-->
+        <!--        <field name="groups" eval="[(4, ref('group_education_faculty'))]"/>-->
+        <!--    </record>-->
 
         <record id="act_version_view" model="ir.actions.act_window">
             <field name="name">Create Version</field>
@@ -310,63 +410,70 @@
             <field name="arch" type="xml">
                 <form create="0" delete="0">
                     <header>
-                        <field name="cvm_state" readonly="1" widget="statusbar"  statusbar_visible="vs,vc,als,alc,cnf"/>
+                        <field name="cvm_state" readonly="1" widget="statusbar" statusbar_visible="vs,vc,als,alc,cnf"/>
                     </header>
 
 
                     <group>
-                        <field name="cvm_design_version_id" options="{'no_create': True, 'no_create_edit':True,'no_open': True}" readonly="1" />
-<!--                        disabled cvm_is_1_n for JEENEET-->
-                        <field name="cvm_is_1_n" invisible="1"  options="{'no_create': True, 'no_create_edit':True,'no_open': True}" readonly="1" groups="education_exam.group_education_principal" />
+                        <field name="cvm_design_version_id"
+                               options="{'no_create': True, 'no_create_edit':True,'no_open': True}" readonly="1"/>
+                        <!--                        disabled cvm_is_1_n for JEENEET-->
+                        <field name="cvm_is_1_n" invisible="1"
+                               options="{'no_create': True, 'no_create_edit':True,'no_open': True}" readonly="1"
+                               groups="education_exam.group_education_principal"/>
                     </group>
 
                     <group>
                         <field name="cvm_design_id" required="1" readonly="1"/>
-                        <field name="cvm_event_details" readonly="1" domain="cvm_event_details_domain"/>
+                        <field name="cvm_event_details" readonly="1" domain="cvm_event_details_domain" invisible="1"/>
                         <field name="cvm_event_details_domain" invisible="1"/>
                         <field name="cvm_subjects" readonly="1" attrs="{'invisible':  [('cvm_exam_type', '=',  2)]}"/>
                     </group>
 
 
-                        <!--                        <field name="cvm_event_details" domain="cvm_event_details_domain"/>-->
-                        <!--                        <field name="cvm_event_details_domain" invisible="1"/>-->
-<!--                        ######################################################JEENEET#################################################-->
-                        <group>
-                            <group col="4">
-                                <field name="cvm_total_questions_jn"   style="width:150px;" readonly="1" attrs="{'invisible':  [('cvm_exam_type', '=',  2)]}"/>
-                                
-                                <field name = "cvm_exam_type" invisible="1"/>
-                           </group>
-                        </group>
-
-                        <group>
-                            <group col="6">
-                                <field name="cvm_easy_percent"  style="width:150px;" readonly="0" attrs="{'readonly': [('cvm_state', '!=', 'vs')],'invisible':  [('cvm_exam_type', '=',  2)]}" />
-                                <field name="cvm_medium_percent"  style="width:150px;" readonly="0" attrs="{'readonly': [('cvm_state', '!=', 'vs')],'invisible':  [('cvm_exam_type', '=',  2)]}" />
-                                <field name="cvm_hard_percent"  readonly="1" style="width:150px;" attrs="{'readonly': [('cvm_state', '!=', 'vs')],'invisible':  [('cvm_exam_type', '=',  2)]}" />
-                             </group>
-                        </group>
-
+                    <!--                        <field name="cvm_event_details" domain="cvm_event_details_domain"/>-->
+                    <!--                        <field name="cvm_event_details_domain" invisible="1"/>-->
+                    <!--                        ######################################################JEENEET#################################################-->
                     <group>
-                            <group>
-                                <field name="cvm_total_time" attrs="{'readonly': [('cvm_state', '!=', 'vs')],'required': [('cvm_state', '=', 'vs')]}" style="width:150px;"/>
-                            </group>
+                        <group col="4">
+                            <field name="cvm_total_questions_jn" style="width:150px;" readonly="1"
+                                   attrs="{'invisible':  [('cvm_exam_type', '=',  2)]}"/>
+
+                            <field name="cvm_exam_type" invisible="1"/>
+                        </group>
                     </group>
 
-                     <group>
-                                 <field name="cvm_total_questions" readonly="1" style="width:100px;" />
-                     </group>
-
-
-
-                                <group>
-                                    <button name="calculate_jn" class="oe_highlight" string="Calculate"
-                                            type="object" invisible="1"></button>
-                                </group>
-
-                        <group>
+                    <group>
+                        <group col="6">
+                            <field name="cvm_easy_percent" style="width:150px;" readonly="0"
+                                   attrs="{'readonly': [('cvm_state', '!=', 'vs')],'invisible':  [('cvm_exam_type', '=',  2)]}"/>
+                            <field name="cvm_medium_percent" style="width:150px;" readonly="0"
+                                   attrs="{'readonly': [('cvm_state', '!=', 'vs')],'invisible':  [('cvm_exam_type', '=',  2)]}"/>
+                            <field name="cvm_hard_percent" readonly="1" style="width:150px;"
+                                   attrs="{'readonly': [('cvm_state', '!=', 'vs')],'invisible':  [('cvm_exam_type', '=',  2)]}"/>
                         </group>
+                    </group>
 
+                    <group>
+                        <group>
+                            <field name="cvm_total_time"
+                                   attrs="{'readonly': [('cvm_state', '!=', 'vs')],'required': [('cvm_state', '=', 'vs')]}"
+                                   style="width:150px;"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <field name="cvm_total_questions" readonly="1" style="width:100px;"/>
+                    </group>
+
+
+                    <group>
+                        <button name="calculate_jn" class="oe_highlight" string="Calculate"
+                                type="object" invisible="1"></button>
+                    </group>
+
+                    <group>
+                    </group>
 
 
                     <group>
@@ -379,27 +486,33 @@
                     <!--                                                type="object"></button>-->
                     <!--                    </group>-->
                     <group string="Summary" invisible="0">
-                        <field name="cvm_summary_view" attrs="{'invisible': [('cvm_exam_type', 'in',  [3,4])]}"  readonly="1" widget="one2many_delete" type="xml" invisible="0">
+                        <field name="cvm_summary_view" attrs="{'invisible': [('cvm_exam_type', 'in',  [3,4])]}"
+                               readonly="1" widget="one2many_delete" type="xml" invisible="0">
                             <tree create="0" delete="0" editable="bottom" class="custom_class_question">
                                 <field name="cvs_set_no" readonly="1" style="text-align: left"/>
                                 <field name="cvs_desc" readonly="1" style="text-align: left"/>
-                                <field name="cvs_difficulty_text" readonly="1" style="text-align: left" attrs="{'column_invisible':  [('parent.cvm_exam_type', '=',  2)]}"/>
+                                <field name="cvs_difficulty_text" readonly="1" style="text-align: left"
+                                       attrs="{'column_invisible':  [('parent.cvm_exam_type', '=',  2)]}"/>
                                 <field name="cvs_av_qs" readonly="1" style="text-align: left"/>
                                 <field name="cvs_in_qs" readonly="1" style="text-align: left"/>
-                                    <field name="cvs_sec" readonly="1" style="text-align: left" attrs="{'column_invisible':  [('parent.cvm_exam_type', 'in',  [3,4])]}"/>
-                                    <field name="cvs_difficulty" readonly="1" style="text-align: left" invisible="1"/>
-                                    <field name="cvs_chapter_id" readonly="1" style="text-align: left" invisible="1"/>
+                                <field name="cvs_sec" readonly="1" style="text-align: left" invisible="1"/>
+                                <field name="cvs_difficulty" readonly="1" style="text-align: left" invisible="1"/>
+                                <field name="cvs_chapter_id" readonly="1" style="text-align: left" invisible="1"/>
 
-                                    <field name="cvs_subject_id" readonly="1" style="text-align: left" attrs="{'column_invisible':  [('parent.cvm_exam_type', '=',  2)]}"/>
-                                <field name="cvs_subject_name" readonly="1" style="text-align: left" attrs="{'column_invisible':  [('parent.cvm_exam_type', '=',  2)]}"/>
-                                <field name="cvs_standard" readonly="1" style="text-align: left" attrs="{'column_invisible':  [('parent.cvm_exam_type', '=',  2)]}"/>
+                                <field name="cvs_subject_id" readonly="1" style="text-align: left"
+                                       attrs="{'column_invisible':  [('parent.cvm_exam_type', '=',  2)]}"/>
+                                <field name="cvs_subject_name" readonly="1" style="text-align: left"
+                                       attrs="{'column_invisible':  [('parent.cvm_exam_type', '=',  2)]}"/>
+                                <field name="cvs_standard" readonly="1" style="text-align: left"
+                                       attrs="{'column_invisible':  [('parent.cvm_exam_type', '=',  2)]}"/>
                             </tree>
                         </field>
                     </group>
                     <group>
                         <group>
                             <group>
-                                <field name="cvm_set_no" attrs="{'readonly': [('cvm_state', '!=', 'vs')],'required': [('cvm_state', '=', 'vs')]}"/>
+                                <field name="cvm_set_no"
+                                       attrs="{'readonly': [('cvm_state', '!=', 'vs')],'required': [('cvm_state', '=', 'vs')]}"/>
                             </group>
                             <group></group>
                         </group>
@@ -407,9 +520,11 @@
                         </group>
                         <group>
                             <group>
-                                <field name="cvm_version_no" attrs="{'readonly': [('cvm_state', '!=', 'vs')],'required': [('cvm_state', '=', 'vs')]}"/>
+                                <field name="cvm_version_no"
+                                       attrs="{'readonly': [('cvm_state', '!=', 'vs')],'required': [('cvm_state', '=', 'vs')]}"/>
                             </group>
                             <group></group>
+
                         </group>
                         <group>
                         </group>
@@ -419,14 +534,24 @@
 
                     <group>
                         <button name="generate_paper" type="object"
-                                class="oe_highlight" string="Generate Paper" attrs="{'invisible': [('cvm_state', '!=', 'vs')]}" />
+                                class="oe_highlight" string="Generate Paper"
+                                attrs="{'invisible': [('cvm_state', '!=', 'vs')]}"/>
                     </group>
 
+                    <group>
+                        <button name="view_paper" type="object"
+                                class="oe_highlight" string="View Question Paper"
+                                attrs="{'invisible': [('cvm_state', '!=', 'vc')]}"/>
+                    </group>
+                    <!--                    <group>-->
+                    <!--                        <button name="view_paper" type="object"-->
+                    <!--                                class="oe_highlight" string="print Question Paper" attrs="{'invisible': [('cvm_state', '!=', 'vc')]}" />-->
+                    <!--                    </group>-->
 
 
                     <notebook attrs="{'invisible': ['|',('cvm_state', '=', 'vs'),('cvm_state', '=', 'vc')]}">
                         <!--                    <notebook>-->
-                        <page string="Allocate" >
+                        <page string="Allocate">
                             <group>
 
 
@@ -435,15 +560,17 @@
                                         <field name="pa_participant_category" readonly="1" style="text-align: left"/>
                                         <!--                                        <field name="pa_participant_id"  style="text-align: center"/>-->
                                         <field name="pa_participant_name" readonly="1" style="text-align: left"/>
-                                        <field name="pa_class_section" readonly="1" style="text-align: left" attrs="{'column_invisible': [('parent.cvm_is_1_n', '!=', 1)]}"/>
+                                        <field name="pa_class_section" readonly="1" style="text-align: left"
+                                               attrs="{'column_invisible': [('parent.cvm_is_1_n', '!=', 1)]}"/>
                                         <field name="pa_variant_count" readonly="1" style="text-align: left"/>
-                                        <field name="pa_paper_count"  readonly="1" style="text-align: left"/>
+                                        <field name="pa_paper_count" readonly="1" style="text-align: left"/>
                                         <field name="pa_paper_id" readonly="1" style="text-align: left"/>
                                     </tree>
                                 </field>
                                 <group>
                                     <button name="allocate" type="object"
-                                            class="oe_highlight" string="Create final question papers" attrs="{'invisible': [('cvm_state', '!=', 'als')]}"
+                                            class="oe_highlight" string="Create final question papers"
+                                            attrs="{'invisible': [('cvm_state', '!=', 'als')]}"
                                             confirm="Do you want to allocate and confirm?"/>
                                 </group>
                                 <!--                            <group>-->
@@ -666,14 +793,14 @@
             <field name="name">schedule_details_tree.tree</field>
             <field name="model">schedule.details</field>
             <field name="arch" type="xml">
-                <tree create="0"  >
+                <tree create="0">
                     <header>
                         <!--                        <button name="refresh_event" class="oe_highlight"-->
                         <!--                                string="Refresh"-->
                         <!--                                type="object"></button>-->
-<!--                        <button name="navigate_version" class="oe_highlight"-->
-<!--                                string="Navigate"-->
-<!--                                type="object"></button>-->
+                        <!--                        <button name="navigate_version" class="oe_highlight"-->
+                        <!--                                string="Navigate"-->
+                        <!--                                type="object"></button>-->
 
                     </header>
                     <!--                    <field name="schedule_id"/>-->
@@ -698,9 +825,9 @@
                             <field name="event_title" readonly="1"/>
                             <!--                    <field name="event_approval_status"/>-->
                             <field name="class_std"/>
-<!--                            <button name="navigate_version" class="oe_highlight"-->
-<!--                                    string="Create Version"-->
-<!--                                    type="object"></button>-->
+                            <!--                            <button name="navigate_version" class="oe_highlight"-->
+                            <!--                                    string="Create Version"-->
+                            <!--                                    type="object"></button>-->
                         </group>
                     </sheet>
                 </form>
@@ -720,7 +847,7 @@
                 </search>
             </field>
         </record>
-<record id="group_code_tree" model="ir.ui.view">
+        <record id="group_code_tree" model="ir.ui.view">
             <field name="name">group_code.tree</field>
             <field name="model">group.code</field>
             <field name="arch" type="xml">
@@ -769,8 +896,8 @@
                 </form>
             </field>
         </record>
-      <!-- ====== DB Logs =================================================
-                ==================================================================== -->
+        <!-- ====== DB Logs =================================================
+                  ==================================================================== -->
         <record id="db_logs_form" model="ir.ui.view">
             <field name="name">db_logs_form.form</field>
             <field name="model">db.logs</field>
@@ -793,13 +920,13 @@
                 <tree>
                     <field name="dl_id"/>
                     <field name="dl_code"/>
-                    <field name="dl_time" />
+                    <field name="dl_time"/>
                     <field name="create_date"/>
                 </tree>
             </field>
         </record>
-      <!-- ====== ID Process =================================================
-                ==================================================================== -->
+        <!-- ====== ID Process =================================================
+                  ==================================================================== -->
         <record id="id_process_form" model="ir.ui.view">
             <field name="name">id_process_form.form</field>
             <field name="model">id.process</field>
@@ -823,8 +950,8 @@
                     <field name="design_id"/>
                     <field name="version_id"/>
                     <field name="create_date"/>
-<!--                     <filter string="Today" name="today_filter"-->
-<!--                            domain="[('create_date','=', (context_today()).strftime('%%Y-%%m-%%d'))]"/>-->
+                    <!--                     <filter string="Today" name="today_filter"-->
+                    <!--                            domain="[('create_date','=', (context_today()).strftime('%%Y-%%m-%%d'))]"/>-->
                 </tree>
             </field>
         </record>
@@ -833,7 +960,7 @@
             <field name="model">id.process</field>
             <field name="arch" type="xml">
                 <search>
-                     <filter string="Today" name="today_filter"
+                    <filter string="Today" name="today_filter"
                             domain="[('create_date','>=', (context_today()).strftime('%%Y-%%m-%%d'))]"/>
                 </search>
             </field>
@@ -961,11 +1088,13 @@
             <field name="target">current</field>
         </record>
 
+
         <!-- ====== Menu Items =================================================
                 ==================================================================== -->
-        <menuitem id="examination_root_menu" name="Exam Management" sequence="200"/>
+        <menuitem id="examination_root_menu" name="Exam Management" sequence="200" action="dash_kanban_view"/>
 
-        <menuitem id="examination_main_menu" parent="education_exam.examination_root_menu" groups="education_exam.group_education_principal"
+        <menuitem id="examination_main_menu" parent="education_exam.examination_root_menu"
+                  groups="education_exam.group_education_principal"
                   name="Paper" action="act_examination_view" sequence="1"/>
         <!--        <menuitem id="examination_create_design_menu" parent="education_exam.examination_main_menu"-->
         <!--                  name="Design Paper" action="act_examination_view" sequence="5"/>-->
@@ -974,11 +1103,14 @@
 
         <!--        <menuitem id="examination_configuration_menu" parent="education_exam.examination_root_menu"-->
         <!--                  name="Set Version" action="act_examination_view" sequence="4"/>-->
-        <menuitem id="examination_version_menu" parent="education_exam.examination_root_menu" groups="education_exam.group_education_principal"
+        <menuitem id="examination_version_menu" parent="education_exam.examination_root_menu"
+                  groups="education_exam.group_education_principal"
                   name="Set Version" action="act_version_view" sequence="2"/>
-        <menuitem id="db_logs_menu" parent="education_exam.examination_root_menu" groups="education_exam.group_education_principal"
+        <menuitem id="db_logs_menu" parent="education_exam.examination_root_menu"
+                  groups="education_exam.group_education_principal"
                   name="DB Logs" action="act_db_view" sequence="4"/>
-        <menuitem id="id_process_menu" parent="education_exam.examination_root_menu" groups="education_exam.group_education_principal"
+        <menuitem id="id_process_menu" parent="education_exam.examination_root_menu"
+                  groups="education_exam.group_education_principal"
                   name="ID process" action="act_id_view" sequence="5"/>
         <!--        <menuitem id="examination_create_design_menu" parent="education_exam.examination_main_menu"-->
         <!--                  name="Design Paper" action="act_examination_view" sequence="5"/>-->
@@ -990,14 +1122,16 @@
 
         <!--        <menuitem id="examination_ques_menu" parent="education_exam.examination_questionpaper_menu"-->
         <!--                  name="Question Paper" action="act_question_view" sequence="1"/>-->
-                            <menuitem id="examination_subject_menu" parent="education_exam.examination_root_menu" groups="education_exam.group_education_principal"
-                                      name="Subject" action="act_subject_view" sequence="6"/>
+        <menuitem id="examination_subject_menu" parent="education_exam.examination_root_menu"
+                  groups="education_exam.group_education_principal"
+                  name="Subject" action="act_subject_view" sequence="6"/>
         <!--        <menuitem id="examination_mark_menu" parent="education_exam.examination_questionpaper_menu"-->
         <!--                  name="Mark" action="act_mark_view" sequence="3"/>-->
         <!--                <menuitem id="examination_standard_menu" parent="education_exam.examination_root_menu"-->
         <!--                          name="Standard" action="act_standard_view" sequence="8"/>-->
-                <menuitem id="examination_schedule_menu" parent="education_exam.examination_root_menu" groups="education_exam.group_education_principal"
-                          name="Schedule" action="act_schedule_view" sequence="6"/>
+        <menuitem id="examination_schedule_menu" parent="education_exam.examination_root_menu"
+                  groups="education_exam.group_education_principal"
+                  name="Schedule" action="act_schedule_view" sequence="6"/>
         <!--        <menuitem id="examination_difficulty_menu" parent="education_exam.examination_questionpaper_menu"-->
         <!--                  name="Difficulty" action="act_difficulty_view" sequence="5"/>-->
         <!--        <menuitem id="examination_setsection_menu" parent="education_exam.examination_questionpaper_menu"-->
@@ -1014,10 +1148,77 @@
         <!--                </div>-->
         <!--            </body>-->
         <!--        </template>-->
+        <!--        question_paper_id-->
+        <!--        <record id="view_question_paper_id_line_tree" model="ir.ui.view">-->
+        <!--            <field name="name">question.paper.id.line.tree</field>-->
+        <!--            <field name="model">question.paper.id.line</field>-->
+        <!--            <field name="arch" type="xml">-->
+        <!--                <tree string="Question Paper ID Line" create="false" delete="false">-->
+        <!--                    <field name="paper_id"/>-->
+        <!--                </tree>-->
+        <!--            </field>-->
+        <!--        </record>-->
+        <record id="view_question_paper_id_line_tree" model="ir.ui.view">
+            <field name="name">question.paper.id.line.tree</field>
+            <field name="model">question.paper.id.line</field>
+            <field name="arch" type="xml">
 
+                <tree string="Question Paper ID Line">
+                    <field name="paper_id"/>
+                    <field name="schedule_id"/>
+                    <field name="exam_name"/>
+                    <field name="subject_name"/>
+                    <field name="standard_dropdown"/>
+                    <field name="medium"/>
+                    <button string="Print Questions" type="object" name="action_view_questions" icon="fa-download"/>
+                    <button string="View Questions" type="object" name="action_view_questions_template" icon="fa-eye"/>
+                    <button string="View Answers" type="object" name="action_view_questions_answer" icon="fa-print"
+                            groups="base.group_system"/>
+                </tree>
+            </field>
+        </record>
+        <record id="view_question_paper_id_line_search" model="ir.ui.view">
+            <field name="name">question.paper.id.line.search</field>
+            <field name="model">question.paper.id.line</field>
+            <field name="arch" type="xml">
+                <search string="Question Paper ID Line Search">
+                    <field name="paper_id"/>
+                    <field name="schedule_id"/>
+                    <field name="exam_name"/>
+                    <field name="subject_name"/>
+                    <field name="standard_dropdown"/>
+                    <field name="medium"/>
+                </search>
+            </field>
+        </record>
 
+        <record id="action_question_paper_id_line" model="ir.actions.act_window">
+            <field name="name">Question Paper ID</field>
+            <field name="res_model">question.paper.id.line</field>
+            <field name="view_mode">tree,form,search</field>
+        </record>
+        <!--        question_paper_line-->
+        <record id="view_question_paper_line_tree" model="ir.ui.view">
+            <field name="name">question.paper.line.tree</field>
+            <field name="model">question.paper.line</field>
+            <field name="arch" type="xml">
+                <tree string="Question Paper Line" create="false" delete="false">
+                    <field name="paper_id"/>
+                    <field name="question_code"/>
+                    <field name="question_text"/>
+                    <field name="option1"/>
+                    <field name="option2"/>
+                    <field name="option3"/>
+                    <field name="qp_id_line_id"/>
+                </tree>
+            </field>
+        </record>
 
-
+        <record id="action_question_paper_line_filtered" model="ir.actions.act_window">
+            <field name="name">Filtered Question Paper Lines</field>
+            <field name="res_model">question.paper.line</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('paper_id', '=', active_id)]</field>
+        </record>
     </data>
-
 </odoo>
