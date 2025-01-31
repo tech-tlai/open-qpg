@@ -8,6 +8,11 @@
     </record>
 
     <template id="q_paper_template_view_id">
+<!--        <button class="btn btn-primary"-->
+<!--                style="font-size: 16px; padding: 10px 20px; height: 50px; width: 200px;"-->
+<!--                onclick="window.print();">-->
+<!--            Print Question Paper-->
+<!--        </button>-->
         <t t-call="web.html_container">
             <div class="page">
                 <h1 style="text-align: center;">Question Paper</h1>
@@ -23,8 +28,12 @@
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>Subject Name:</strong></td>
-                            <td><span t-field="docs.qp_id_line_id.subject_name"/></td>
+                            <td>
+                                <strong>Subject Name:</strong>
+                            </td>
+                            <td>
+                                <span t-field="docs.qp_id_line_id.subject_name"/>
+                            </td>
                         </tr>
                         <tr>
                             <td>

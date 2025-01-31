@@ -2357,16 +2357,17 @@ class QuestionPaperIdLine(models.Model):
             raise UserError('No questions found for the selected Paper ID.')
 
         # Return the report action, rendering the template for the question lines
-        # return self.env.ref('education_exam.q_paper_line_view_id').report_action(question_lines)
-        report_ref = 'education_exam.q_paper_template_view_id'
-        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
-        report_url = f"{base_url}/report/html/{report_ref}/{','.join(map(str, question_lines.ids))}"
+        return self.env.ref('education_exam.q_paper_line_view_id').report_action(question_lines)
+        # report_ref = 'education_exam.q_paper_template_view_id'
+        # base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        # report_url = f"{base_url}/report/html/{report_ref}/{','.join(map(str, question_lines.ids))}"
+        #
+        # return {
+        #     'type': 'ir.actions.act_url',
+        #     'url': report_url,
+        #     'target': 'new',  # Opens in a new browser tab
+        # }
 
-        return {
-            'type': 'ir.actions.act_url',
-            'url': report_url,
-            'target': 'new',  # Opens in a new browser tab
-        }
 
 class QuestionPaperLine(models.Model):
     _name = 'question.paper.line'
@@ -2435,20 +2436,30 @@ class DashKanban(models.Model):
             'view_mode': 'form',
             'res_model': 'search.paper',
         }
+
     def view_settings(self):
-        pass
+        # return {
+        #     'type': 'ir.actions.act_window',
+        #     'name': 'Config Settings',
+        #     'view_mode': 'form',
+        #     'res_model': 'res.config.settings',
+        #     'target': 'inline',
+        #     'context': {'module': 'general_settings', 'bin_size': False}
+        # }
+        return self.env.ref('base_setup.action_general_configuration').read()[0]
 
 
 class QuestionPaperSearch(models.Model):
     _name = 'search.paper'
     _description = 'Search Paper'
 
+    name = fields.Char(string='Name', default='Search Paper')
     subject_id = fields.Many2one('subject.master.table', string='Subject')
-    medium_id = fields.Many2one('medium.master.table', string='Medium', required=True)
+    medium_id = fields.Many2one('medium.master.table', string='Medium')
     exam_name = fields.Char(string='Event Name')
     standard_dropdown = fields.Selection(
         [('5', '5'), ('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('10', '10'), ('11', '11'), ('12', '12')],
-        string='Standard*', required=True)
+        string='Standard*')
     created_date = fields.Date(string="Created Date(On or After)")
     question_ids = fields.One2many('question.paper.id.line', 'search_paper_id', string="Children", readonly=True)
 
@@ -2462,10 +2473,14 @@ class QuestionPaperSearch(models.Model):
             domain.append(('standard_dropdown', '=', self.standard_dropdown))
         if self.created_date:
             domain.append(('create_date', '>=', self.created_date))
+        if self.medium_id:
+            domain.append(('medium', '=', self.medium_id.mmt_medium_name))
         user = self.env.user
         is_admin = user.has_group('base.group_system')
         if not is_admin:
             domain.append(('create_uid', '=', user.id))
+        if not domain:
+            raise ValidationError('Please Select Atleast One Parameter')
 
         question_line_ids = self.env['question.paper.id.line'].search(domain)
         self.question_ids = [(6, 0, question_line_ids.ids)]

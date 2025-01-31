@@ -111,15 +111,22 @@
                     </group>
 
                     <group>
-                        <button name="select_all" type="object"
-                                attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','=','1')]}"
-                                class="oe_highlight" string="Select all"
-                                style="height: 30px; width: 100px; font-size: 12px;position: relative;left:150px"/>
-                        <button name="create_desc" class="oe_highlight" string="Create"
-                                attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['2','3','4'])]}"
-                                type="object"></button>
-                        <!--                        <button name="deselect_all" type="object"-->
-                        <!--                                        class="oe_highlight" string="Deselect all"/>-->
+                        <group>
+                            <button name="select_all" type="object"
+                                    attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','=','1')]}"
+                                    class="oe_highlight" string="Select all"
+                                    style="height: 30px; width: 100px; font-size: 12px;position: relative;left:150px"/>
+
+                            <button name="deselect_all" type="object"
+                                    attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','=','1')]}"
+                                    class="oe_highlight" string="Deselect all"
+                                    style="height: 30px; width: 100px; font-size: 12px;position: absolute;left:300px"/>
+                        </group>
+
+                        <!--                            <button name="create_desc" class="oe_highlight" string="Create"-->
+                        <!--                                    attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['2','3','4'])]}"-->
+                        <!--                                    type="object"></button>-->
+
                     </group>
                     <group>
                         <field name="question_list"
@@ -330,18 +337,18 @@
                 record.name.raw_value == 'Question Paper View' and '#fff3e0' or
                 '#f9f9f9'
             )">
-<!--                                <t groups="base.group_system">-->
-<!--                                    <div>-->
-<!--                                        settings-->
-<!--                                    </div>-->
-<!--                                </t>-->
+                                <!--                                <t groups="base.group_system">-->
+                                <!--                                    <div>-->
+                                <!--                                        settings-->
+                                <!--                                    </div>-->
+                                <!--                                </t>-->
 
                                 <!--                                <strong>-->
                                 <!--                                    <field name="display_name"/>-->
                                 <!--                                </strong>-->
                                 <t t-if="record.name.raw_value == 'Design Paper Create'">
                                     <div>
-                                        <img src="/education_exam/static/src/img/exam.png" alt="Create Exam Event"
+                                        <img src="/education_exam/static/src/img/Create.png" alt="Create Exam Event"
                                              class="kanban-image" width="100px" height="100px"/>
                                     </div>
                                     <br></br>
@@ -357,7 +364,7 @@
 
                                 <t t-if="record.name.raw_value == 'Design Paper View'">
                                     <div>
-                                        <img src="/education_exam/static/src/img/exam.png" alt="Create Exam Event"
+                                        <img src="/education_exam/static/src/img/Edit.png" alt="Create Exam Event"
                                              class="kanban-image" width="100px" height="100px"/>
                                     </div>
                                     <br></br>
@@ -373,7 +380,7 @@
 
                                 <t t-if="record.name.raw_value == 'Question Paper View'">
                                     <div>
-                                        <img src="/education_exam/static/src/img/exam.png" alt="Create Exam Event"
+                                        <img src="/education_exam/static/src/img/Search.png" alt="Create Exam Event"
                                              class="kanban-image" width="100px" height="100px"/>
                                     </div>
                                     <br></br>
@@ -387,6 +394,15 @@
                                     </button>
                                 </t>
                                 <t t-if="record.name.raw_value == 'Settings'">
+                                    <div>
+                                        <img src="/education_exam/static/src/img/Admin.png" alt="Create Exam Event"
+                                             class="kanban-image" width="100px" height="100px"/>
+                                    </div>
+                                    <br></br>
+                                    <div>
+                                        To Create User
+                                    </div>
+                                    <br></br>
                                     <button type="object" name="view_settings" class="btn btn-secondary"
                                             t-on-click="doAction('action_for_type2')">
                                         <strong>Settings</strong>
