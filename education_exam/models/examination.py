@@ -51,7 +51,7 @@ class EducationExam(models.Model):
     # name = fields.Char(string='Name', default='New')
     reference = fields.Char(string='Design ID', required=True, copy=False, readonly=True, default=lambda self: _('New'))
 
-    exam_name = fields.Char(string='Event Name', store=True, placeholder='New',required='True')
+    exam_name = fields.Char(string='Event Name', store=True, placeholder='New', required='True')
     description = fields.Char(string='Design Paper Description', placeholder='Design Paper Description')
 
     subject_line = fields.One2many('education.subject.line', 'exam_id', string='Subjects')
@@ -88,13 +88,13 @@ class EducationExam(models.Model):
     #     [('16', 'Tamil'), ('19', 'English'), ('5', 'Kannada'), ('8', 'Malayalam'),
     #      ('17', 'Telugu'), ('18', 'Urdu')], string='Medium*', default='19')
     medium = fields.Selection(
-        [('16', 'Tamil'),('19', 'English')], string='Medium*', required=True, default='19')
+        [('16', 'Tamil'), ('19', 'English')], string='Medium*', required=True, default='19')
     # medium = fields.Many2one('medium.master', string='Medium*', required=True)
 
     standard = fields.Many2one('question.standard', string='Standard*')
     standard_dropdown = fields.Selection(
         [('5', '5'), ('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('10', '10'), ('11', '11'), ('12', '12')],
-        string='Standard*', required=True, default='11')
+        string='Standard*', required=True)
     term_id = fields.Selection([('1', '1'), ('2', '2'), ('3', '3'), ('4', 'All')], string='Term', default='3')
     chapter = fields.Many2one('question.subject.chapter', string='Chapter*')
     exam_type = fields.Selection([('1', 'Descriptive'), ('2', 'MCQ'), ('3', 'JEE'), ('4', 'NEET')], string='Event Type',
@@ -104,8 +104,8 @@ class EducationExam(models.Model):
     cdac_schedule_id = fields.Integer(string='CDAC Schedule ID', store=True)
 
     # schedule_id = fields.Integer(string='QP Schedule ID', store=True, default=None)
-    schedule_id= fields.Char(
-        string='Schedule ID', required=True, copy=False, readonly=True,
+    schedule_id = fields.Char(
+        string='Event ID', required=True, copy=False, readonly=True,
         default=lambda self: _('New')
     )
 
@@ -128,6 +128,14 @@ class EducationExam(models.Model):
     # _sql_constraints = [
     #     ('unique_schedule_id', 'unique(schedule_id)', 'The QP Schedule ID must be unique.')
     # ]
+
+    #for status updation
+    ee_cvm_state = fields.Selection(
+        [('vs', 'Version start'), ('vc', 'Version Completion'), ('als', 'Allocation start'), ('alc', 'Allocated'),
+         ('cnf', 'Confirm')], string='Version State', default='vs')
+
+
+
     @api.model
     def create(self, vals):
         if vals.get('reference', _('New')) == _('New'):
@@ -176,11 +184,10 @@ class EducationExam(models.Model):
     @api.depends('standard_dropdown', 'medium', 'term_id', 'subject')
     def _compute_chapter_dropdown_domain(self):
         for rec in self:
-            if int(self.standard_dropdown) > 4:
-                rec.chapter_dropdown_domain = json.dumps(
-                    [('cl_medium_id', '=', int(self.medium)), ('cl_standard', '=', int(self.standard_dropdown)),
-                     ('cl_subject_id', '=', int(self.subject.smt_subject_code))])
-                print(rec.chapter_dropdown_domain)
+            # if int(self.standard_dropdown) > 4:
+            rec.chapter_dropdown_domain = json.dumps(
+                [('cl_medium_id', '=', int(self.medium)), ('cl_standard', '=', int(self.standard_dropdown)),
+                 ('cl_subject_id', '=', int(self.subject.smt_subject_code))])
             # else:
             #     rec.chapter_dropdown_domain = json.dumps(
             #         [('cl_medium_id', '=', int(self.medium)), ('cl_standard', '=', int(self.standard_dropdown)),
@@ -319,11 +326,24 @@ class EducationExam(models.Model):
         for line in self.question_list:
             line.checkbox = False
 
+    def view_qp(self):
+        version_master_id = self.env['version.master'].search([('cvm_design_id', '=', self.id)])
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Question Paper ID',
+            'view_mode': 'tree',
+            'res_model': 'question.paper.id.line',
+            'flags': {'hasSelectors': False},
+            'domain': [('version_master_id', '=', version_master_id.id)],
+            'target': 'current',
+        }
+
     def navigate_version(self):
         subjectConcat = self.confirm_exam()
-        print("test", subjectConcat)
+        # print("ee_cvm_state", self.ee_cvm_state)
         version = self.env['version.master'].search([('cvm_design_id', '=', self.id)])
         if version:
+            self.ee_cvm_state = version.cvm_state
             pass
         else:
             for rec in self.question_list:
@@ -353,7 +373,10 @@ class EducationExam(models.Model):
                 version = self.env['version.master'].create(
                     {'cvm_design_id': self.id, "cvm_is_1_n": is_1_n, "cvm_subjects": subjectConcat,
                      "cvm_total_questions_jn": num_questions_jn, "cvm_exam_type": exam_type_value,
-                      'cvm_total_time': total_time})
+                     'cvm_total_time': total_time})
+                if version:
+                    self.ee_cvm_state = version.cvm_state
+
 
             except Exception as exc:
                 raise UserError("No event details are attached to current design")
@@ -473,7 +496,9 @@ class EducationExam(models.Model):
                     """
             # Execute the query with parameters
             try:
-                self.env.cr.execute(mcq_search_qry, (int(self.medium), int(self.standard_dropdown), self.subject.smt_subject_name, self.chapter_dropdown.cl_chapter_name))
+                self.env.cr.execute(mcq_search_qry, (
+                int(self.medium), int(self.standard_dropdown), self.subject.smt_subject_name,
+                self.chapter_dropdown.cl_chapter_name))
             except:
                 raise UserError("Database is not responding please try after sometime.")
 
@@ -481,20 +506,20 @@ class EducationExam(models.Model):
             query_response = self.env.cr.fetchall()
             if len(query_response) == 0:
                 raise UserError('Sorry, there are no questions available for the selected subject at the moment. '
-                                            'Kindly choose another subject.')
-            details_list=[]
+                                'Kindly choose another subject.')
+            details_list = []
             unique_chapters = set()
             for rec in query_response:
                 details_list.append((0, 0,
-                                                 {"ql_criteria_name": 'Topic' if self.selection_criteria == '2' else '',
-                                                  "ql_name": rec[2],
-                                                  "ql_q_count": rec[3],
-                                                  "ql_chapter": rec[1],
-                                                  "ql_chapter_idx_id": rec[4],
-                                                  "ql_idx_id" : rec[5],
-                                                  "ql_topic_idx_id": rec[5],
-                                                  'ql_criteria':2
-                                                  }))
+                                     {"ql_criteria_name": 'Topic' if self.selection_criteria == '2' else '',
+                                      "ql_name": rec[2],
+                                      "ql_q_count": rec[3],
+                                      "ql_chapter": rec[1],
+                                      "ql_chapter_idx_id": rec[4],
+                                      "ql_idx_id": rec[5],
+                                      "ql_topic_idx_id": rec[5],
+                                      'ql_criteria': 2
+                                      }))
 
             self.env['education.exam'].browse(self._origin.id).write({'question_list': details_list})
         ############# chpater dropdown ############################
@@ -515,7 +540,8 @@ class EducationExam(models.Model):
                     """
             # Execute the query with parameters
             try:
-                self.env.cr.execute(mcq_search_qry, (int(self.medium), int(self.standard_dropdown), self.subject.smt_subject_name))
+                self.env.cr.execute(mcq_search_qry,
+                                    (int(self.medium), int(self.standard_dropdown), self.subject.smt_subject_name))
             except:
                 raise UserError("Database is not responding please try after sometime.")
 
@@ -523,22 +549,21 @@ class EducationExam(models.Model):
             query_response = self.env.cr.fetchall()
             if len(query_response) == 0:
                 raise UserError('Sorry, there are no questions available for the selected subject at the moment. '
-                                            'Kindly choose another subject.')
-            details_list=[]
+                                'Kindly choose another subject.')
+            details_list = []
             unique_chapters = set()
             for rec in query_response:
                 details_list.append((0, 0,
-                                                 {"ql_criteria_name": 'Chapter' if self.selection_criteria == '1' else '',
-                                                  "ql_name": rec[1],
-                                                  "ql_q_count": rec[2],
-                                                  "ql_idx_id": rec[3],
-                                                  'ql_criteria': 1
-                                                  }))
+                                     {"ql_criteria_name": 'Chapter' if self.selection_criteria == '1' else '',
+                                      "ql_name": rec[1],
+                                      "ql_q_count": rec[2],
+                                      "ql_idx_id": rec[3],
+                                      'ql_criteria': 1
+                                      }))
 
             self.env['education.exam'].browse(self._origin.id).write({'question_list': details_list})
 
         # return query_response
-
 
     # def search_mcq(self):
     #     # prgram_start = time.time()
@@ -874,7 +899,6 @@ class EducationExam(models.Model):
                 #         line.ql_chapter_idx_id) if line.ql_chapter_idx_id not in chapter_list else chapter_list
                 criteria = line.ql_criteria
 
-
         standard = int(self.standard_dropdown)
         if standard <= 8:
             q_type = (1, 2)
@@ -905,7 +929,7 @@ class EducationExam(models.Model):
             where qmt_taxonomy_code in (select stm_taxonomy_code
             from subject_taxonomy_master
             where stm_chapter_code in %s and stm_topic_code in %s)"""
-            self.env.cr.execute(q_query, (chapter_tuple,topic_tuple))
+            self.env.cr.execute(q_query, (chapter_tuple, topic_tuple))
 
         # elif criteria == 3:
         #     q_query = """select ed.q_id,eb.q_text from tnschools_working.exams_quest_detail ed inner join
@@ -1104,8 +1128,8 @@ class VersionMaster(models.Model):
     cvm_version_count = fields.Integer(string='No. of versions(max 5)*')
     cvm_paper_no = fields.Integer(string='No. of sets(max 10)*')
     cvm_set_no = fields.Selection(
-        [('1', '1'), ('2', '2'), ('3', '3'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'), ('8', '8'),
-         ('9', '9'), ('10', '10')], string='No. of sets(max 10)*', default='5')
+        [('1', '1'), ('2', '2'), ('3', '3'), ('3', '3'), ('4', '4'), ('5', '5')], string='No. of sets(max 5)*',
+        default='5')
     cvm_version_no = fields.Selection([('1', '1'), ('2', '2'), ('3', '3'), ('3', '3'), ('4', '4'), ('5', '5')],
                                       string='No. of versions(max 5)*', default='5')
     # cvm_set_count=fields.Selection()
@@ -1426,11 +1450,13 @@ class VersionMaster(models.Model):
             if self.cvm_state == 'vc' or self.cvm_state == 'als' or self.cvm_state == 'alc' or self.cvm_state == 'cnf':
                 raise UserError('Paper already generated.')
             self.cvm_state = 'vc'
+            # state for education_exam
+            self.cvm_design_id.ee_cvm_state = 'vc'
             if (int(self.cvm_set_no)) < 1 or (int(self.cvm_version_no)) < 1:
                 raise UserError("Please enter value greater than 0 for No. sets and No. of versions")
             # if self.cvm_is_1_n == 1:
             #     participant_pk = self.cvm_design_id.participant_pk
-                # print('1:N event')
+            # print('1:N event')
             question_corpus = {}
             result = self.env['version.set.summary'].search(
                 [('cvs_design_version_id', '=', self.id)])
@@ -1526,7 +1552,7 @@ class VersionMaster(models.Model):
                     self.env['question.paper.details'].create({
                         'qpd_schedule_id': self.cvm_design_id.schedule_id,
                         'qpd_paper_id': paper_id,
-                        'qpd_q_ids':paper_question_list,
+                        'qpd_q_ids': paper_question_list,
                         'qpd_total_time': self.cvm_total_time,
                         'qpd_total_questions': self.cvm_total_questions,
                         'created_by': self.env.uid,
@@ -1564,7 +1590,8 @@ class VersionMaster(models.Model):
 
         self.allocation_start()
         return
-#############################view_paper####################################
+
+    #############################view_paper####################################
     def view_paper(self):
         query = """
             SELECT 
@@ -1591,7 +1618,7 @@ WHERE
         """
         self.env.cr.execute(query, (self.cvm_design_id.schedule_id,))
         results = self.env.cr.fetchall()
-        print('self',self)
+        print('self', self)
         print('self', self.cvm_design_id)
         print('exam_name', self.cvm_design_id.exam_name)
         print('subject_name', self.cvm_design_id.subject.smt_subject_name)
@@ -1645,50 +1672,50 @@ WHERE
 
     #############################view_paper ends ####################################
     #############################print_paper starts #################################
-#     def print_paper(self):
-#         print("Executing print_paper method...", self.cvm_design_id.schedule_id)
-#         query = """
-#             SELECT
-# 	qpd.qpd_paper_id,
-#     qmt.qmt_question_code,
-#     qmt.qmt_q_text,
-#    	qat.qat_option1,
-# 	qat.qat_option2,
-# 	qat.qat_option3,
-# 	qat.qat_option4
-# FROM
-#     question_paper_details qpd
-# CROSS JOIN LATERAL
-#     unnest(string_to_array(regexp_replace(regexp_replace(qpd.qpd_q_ids, '\[|\]', '', 'g'), '''', '', 'g'), ',')) AS question_id
-# LEFT JOIN
-#     question_master_table qmt
-#     ON qmt.qmt_question_code = CAST(question_id AS INTEGER)
-# JOIN question_answer_table qat
-# 	ON qat.qat_question_code = qmt.qmt_question_code
-# WHERE
-#     qpd.qpd_schedule_id = %s;
-#         """
-#         self.env.cr.execute(query, (self.cvm_design_id.schedule_id,))
-#         results = self.env.cr.fetchall()
-#
-#         # Clear existing data in `question.paper.line`
-#         self.env['question.paper.line'].search([]).unlink()
-#
-#         # Insert fetched data into `question.paper.line`
-#         for result in results:
-#             print('result', result)
-#             self.env['question.paper.line'].create({
-#                 'paper_id': result[0],
-#                 'question_code': result[1],
-#                 'question_text': result[2],
-#                 'option1' :result[3],
-#                 'option2': result[4],
-#                 'option3': result[5],
-#                 'option4': result[6],
-#             })
-#
-#         # Return an action pdf
-#         return self.env.ref('education_exam.q_paper_action_id').report_action(self)
+    #     def print_paper(self):
+    #         print("Executing print_paper method...", self.cvm_design_id.schedule_id)
+    #         query = """
+    #             SELECT
+    # 	qpd.qpd_paper_id,
+    #     qmt.qmt_question_code,
+    #     qmt.qmt_q_text,
+    #    	qat.qat_option1,
+    # 	qat.qat_option2,
+    # 	qat.qat_option3,
+    # 	qat.qat_option4
+    # FROM
+    #     question_paper_details qpd
+    # CROSS JOIN LATERAL
+    #     unnest(string_to_array(regexp_replace(regexp_replace(qpd.qpd_q_ids, '\[|\]', '', 'g'), '''', '', 'g'), ',')) AS question_id
+    # LEFT JOIN
+    #     question_master_table qmt
+    #     ON qmt.qmt_question_code = CAST(question_id AS INTEGER)
+    # JOIN question_answer_table qat
+    # 	ON qat.qat_question_code = qmt.qmt_question_code
+    # WHERE
+    #     qpd.qpd_schedule_id = %s;
+    #         """
+    #         self.env.cr.execute(query, (self.cvm_design_id.schedule_id,))
+    #         results = self.env.cr.fetchall()
+    #
+    #         # Clear existing data in `question.paper.line`
+    #         self.env['question.paper.line'].search([]).unlink()
+    #
+    #         # Insert fetched data into `question.paper.line`
+    #         for result in results:
+    #             print('result', result)
+    #             self.env['question.paper.line'].create({
+    #                 'paper_id': result[0],
+    #                 'question_code': result[1],
+    #                 'question_text': result[2],
+    #                 'option1' :result[3],
+    #                 'option2': result[4],
+    #                 'option3': result[5],
+    #                 'option4': result[6],
+    #             })
+    #
+    #         # Return an action pdf
+    #         return self.env.ref('education_exam.q_paper_action_id').report_action(self)
 
     #############################print_paper ends #################################
     def allocation_start(self):
@@ -2155,6 +2182,7 @@ class MediumMasterTable(models.Model):
         ('unique_mmt_medium_code', 'UNIQUE(mmt_medium_code)', 'Medium Code must be unique!')
     ]
 
+
 class SubjectMasterTable(models.Model):
     _name = 'subject.master.table'
     _description = 'Subject Master Table'
@@ -2172,6 +2200,7 @@ class SubjectMasterTable(models.Model):
     _sql_constraints = [
         ('unique_smt_subject_code', 'UNIQUE(smt_subject_code)', 'Subject Code must be unique!')
     ]
+
 
 class SubjectTaxonomyMaster(models.Model):
     _name = 'subject.taxonomy.master'
@@ -2192,10 +2221,10 @@ class SubjectTaxonomyMaster(models.Model):
     stm_updated_date = fields.Date(string='Created Date')
     stm_is_active = fields.Boolean(string="Is Active")
 
-
     _sql_constraints = [
         ('unique_taxonomy_codestm_taxonomy_code', 'UNIQUE(stm_taxonomy_code)', 'Taxonomy Code must be unique!')
     ]
+
 
 class QuestinTypeMaster(models.Model):
     _name = 'question.type.master'
@@ -2210,6 +2239,7 @@ class QuestinTypeMaster(models.Model):
         ('unique_q_type_code', 'UNIQUE(q_type_code)', 'Question Type Code must be unique!')
     ]
 
+
 class QuestinFormatMaster(models.Model):
     _name = 'question.format.master'
     _description = 'Questin Format Master'
@@ -2222,6 +2252,7 @@ class QuestinFormatMaster(models.Model):
     _sql_constraints = [
         ('unique_q_format_code', 'UNIQUE(q_format_code)', 'Question Format Code must be unique!')
     ]
+
 
 class QuestionMasterTable(models.Model):
     _name = 'question.master.table'
@@ -2241,10 +2272,10 @@ class QuestionMasterTable(models.Model):
     qmt_updated_date = fields.Date(string='Created Date')
     qmt_is_active = fields.Boolean(string="Is Active")
 
-
     _sql_constraints = [
         ('unique_qmt_question_code', 'UNIQUE(qmt_question_code)', 'Question Code must be unique!')
     ]
+
 
 class QuestionAnswerTable(models.Model):
     _name = 'question.answer.table'
@@ -2267,7 +2298,7 @@ class QuestionPaperDetails(models.Model):
     _description = 'Question Paper Details'
 
     # qpd_schedule_id = fields.Integer(string="Schedule ID")
-    qpd_schedule_id = fields.Char(string="Schedule ID")
+    qpd_schedule_id = fields.Char(string="Event ID")
     qpd_paper_id = fields.Char(string="Paper ID")
     qpd_q_ids = fields.Char(string="Question IDs")
     qpd_total_time = fields.Integer(string="Total Time (minutes)")
@@ -2276,17 +2307,25 @@ class QuestionPaperDetails(models.Model):
     updated_by = fields.Many2one('res.users', string="Updated By")
     qpd_title = fields.Char(string="Title")
 
+
 class QuestionPaperIdLine(models.Model):
     _name = 'question.paper.id.line'
     _description = 'Question Paper ID Line'
 
     paper_id = fields.Char(string="Question Paper ID")
     version_master_id = fields.Many2one('version.master', Text='Version Master ID')
-    exam_name = fields.Char(string="Exam Name")
+    exam_name = fields.Char(string="Event Name")
     subject_name = fields.Char(string="Subject Name")
     standard_dropdown = fields.Char(string="Standard")
     medium = fields.Char(string="Medium")
-    schedule_id = fields.Char(string="Schedule ID")
+    schedule_id = fields.Char(string="Event ID")
+
+    subject_id = fields.Many2one('subject.master.table', string='Subject_id')
+    medium_id = fields.Many2one('medium.master.table', string='Medium')
+
+
+    search_paper_id = fields.Many2one('search.paper', "Search paper")
+
 
     _sql_constraints = [
         ('unique_paper_id', 'unique(paper_id)', 'The QP Schedule ID must be Paper Id.')
@@ -2314,13 +2353,20 @@ class QuestionPaperIdLine(models.Model):
         domain = [('paper_id', '=', self.paper_id)]
         question_lines = self.env['question.paper.line'].search(domain)
 
-        print(question_lines)
-
         if not question_lines:
             raise UserError('No questions found for the selected Paper ID.')
 
         # Return the report action, rendering the template for the question lines
         return self.env.ref('education_exam.q_paper_line_view_id').report_action(question_lines)
+        # report_ref = 'education_exam.q_paper_template_view_id'
+        # base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        # report_url = f"{base_url}/report/html/{report_ref}/{','.join(map(str, question_lines.ids))}"
+        #
+        # return {
+        #     'type': 'ir.actions.act_url',
+        #     'url': report_url,
+        #     'target': 'new',  # Opens in a new browser tab
+        # }
 
 
 class QuestionPaperLine(models.Model):
@@ -2337,21 +2383,31 @@ class QuestionPaperLine(models.Model):
     correct_answer = fields.Char(string="Correct Answer")
     qp_id_line_id = fields.Many2one('question.paper.id.line', Text='Question Paper Id Line Id')
 
+
 class DashKanban(models.Model):
     _name = 'dash.kanban'
     _description = 'Dash Kanban'
 
     name = fields.Char(string="Name")
+    display_name = fields.Char(string="Display Name")
+    image = fields.Image(string="Image")
+    is_admin_only = fields.Boolean(string="Admin Only", default=False)
 
     def design_paper_view(self):
         user = self.env.user
         is_admin = user.has_group('base.group_system')
+        domain = []
+        if is_admin:
+            domain.append(('create_uid', '=', user.id))
+        domain.append(('ee_cvm_state', '!=', 'vc'))
+        print('domain', domain)
+
         return {
             'type': 'ir.actions.act_window',
             'name': 'Design Paper',
             'view_mode': 'tree,form',
             'res_model': 'education.exam',
-            'domain': [] if is_admin else [('create_uid', '=', user.id)],
+            'domain': domain,
         }
 
     def design_paper_create(self):
@@ -2364,15 +2420,107 @@ class DashKanban(models.Model):
             'res_model': 'education.exam',
             'domain': [] if is_admin else [('create_uid', '=', user.id)],
         }
+
     def view_question_paper(self):
         user = self.env.user
         is_admin = user.has_group('base.group_system')
+        domain = []
+        if not is_admin:
+            domain.append(('create_uid', '=', user.id))
+        # if self.exam_name:
+        #     domain.append(('exam_name', 'ilike', self.exam_name))
+
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Question Paper',
-            'view_mode': 'tree',
-            'res_model': 'question.paper.id.line',
-            'domain': [] if is_admin else [('create_uid', '=', user.id)],
+            'name': 'Filtered Question Papers',
+            'view_mode': 'form',
+            'res_model': 'search.paper',
         }
 
+    def view_settings(self):
+        # return {
+        #     'type': 'ir.actions.act_window',
+        #     'name': 'Config Settings',
+        #     'view_mode': 'form',
+        #     'res_model': 'res.config.settings',
+        #     'target': 'inline',
+        #     'context': {'module': 'general_settings', 'bin_size': False}
+        # }
+        return self.env.ref('base_setup.action_general_configuration').read()[0]
 
+
+class QuestionPaperSearch(models.Model):
+    _name = 'search.paper'
+    _description = 'Search Paper'
+
+    name = fields.Char(string='Name', default='Search Paper')
+    subject_id = fields.Many2one('subject.master.table', string='Subject')
+    medium_id = fields.Many2one('medium.master.table', string='Medium')
+    exam_name = fields.Char(string='Event Name')
+    standard_dropdown = fields.Selection(
+        [('5', '5'), ('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('10', '10'), ('11', '11'), ('12', '12')],
+        string='Standard*')
+    created_date = fields.Date(string="Created Date(On or After)")
+    question_ids = fields.One2many('question.paper.id.line', 'search_paper_id', string="Children", readonly=True)
+
+    def action_search_questions_ids(self):
+        domain = []
+        if self.subject_id.smt_subject_name:
+            domain.append(('subject_name', '=', self.subject_id.smt_subject_name))
+        if self.exam_name:
+            domain.append(('exam_name','ilike', self.exam_name))
+        if self.standard_dropdown:
+            domain.append(('standard_dropdown', '=', self.standard_dropdown))
+        if self.created_date:
+            domain.append(('create_date', '>=', self.created_date))
+        if self.medium_id:
+            domain.append(('medium', '=', self.medium_id.mmt_medium_name))
+        user = self.env.user
+        is_admin = user.has_group('base.group_system')
+        if not is_admin:
+            domain.append(('create_uid', '=', user.id))
+        if not domain:
+            raise ValidationError('Please Select Atleast One Parameter')
+
+        question_line_ids = self.env['question.paper.id.line'].search(domain)
+        self.question_ids = [(6, 0, question_line_ids.ids)]
+
+
+class QuestionPaperFilterWizard(models.TransientModel):
+    _name = 'question.paper.filter.wizard'
+    _description = 'Filter Question Paper by Subject and Medium'
+
+    subject_id = fields.Many2one('subject.master.table', string='Subject', required=True)
+    medium_id = fields.Many2one('medium.master.table', string='Medium', required=True)
+    standard_dropdown = fields.Selection(
+        [('5', '5'), ('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('10', '10'), ('11', '11'), ('12', '12')],
+        string='Standard*', required=True, default='11')
+    exam_name = fields.Char(string='Exam Name')
+
+
+    def action_filter_question_papers(self):
+        """ Open the question paper records filtered by subject and medium and Standard. """
+        if not self.subject_id or not self.medium_id or not self.standard_dropdown:
+            raise UserError("Please select Subject, Medium and Standard before proceeding.")
+        # print('self', self)
+        # print('self', self.medium_id)
+        user = self.env.user
+        is_admin = user.has_group('base.group_system')
+
+        domain = [
+            ('subject_name', '=', self.subject_id.smt_subject_name),
+            ('medium', '=', self.medium_id.mmt_medium_name),
+            ('standard_dropdown', '=', self.standard_dropdown),
+        ]
+        if not is_admin:
+            domain.append(('create_uid', '=', user.id))
+        if self.exam_name:
+            domain.append(('exam_name', 'ilike', self.exam_name))
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Filtered Question Papers',
+            'view_mode': 'tree,form',
+            'res_model': 'question.paper.id.line',
+            'domain': domain,
+        }

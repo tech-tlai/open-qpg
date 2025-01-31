@@ -106,19 +106,27 @@
                         <group>
                             <button name="search_mcq" class="oe_highlight" string="Search"
                                     attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['3','4'])]}"
-                                    type="object"></button>
+                                    type="object" style="height: 30px; width: 100px; font-size: 12px;"></button>
                         </group>
                     </group>
 
                     <group>
-                        <button name="select_all" type="object"
-                                attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','=','1')]}"
-                                class="oe_highlight" string="Select all"/>
-                        <button name="create_desc" class="oe_highlight" string="Create"
-                                attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['2','3','4'])]}"
-                                type="object"></button>
-                        <!--                        <button name="deselect_all" type="object"-->
-                        <!--                                        class="oe_highlight" string="Deselect all"/>-->
+                        <group>
+                            <button name="select_all" type="object"
+                                    attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','=','1')]}"
+                                    class="oe_highlight" string="Select all"
+                                    style="height: 30px; width: 100px; font-size: 12px;position: relative;left:150px"/>
+
+                            <button name="deselect_all" type="object"
+                                    attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','=','1')]}"
+                                    class="oe_highlight" string="Deselect all"
+                                    style="height: 30px; width: 100px; font-size: 12px;position: absolute;left:300px"/>
+                        </group>
+
+                        <!--                            <button name="create_desc" class="oe_highlight" string="Create"-->
+                        <!--                                    attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['2','3','4'])]}"-->
+                        <!--                                    type="object"></button>-->
+
                     </group>
                     <group>
                         <field name="question_list"
@@ -127,7 +135,6 @@
                                widget="one2many_delete" type="xml">
                             <tree create="0" delete="0" editable="top" class="custom_class_question">
                                 <field name="checkbox" nolabel="1"/>
-
                                 <field name="ql_criteria_name" readonly="1" style="text-align: left"
                                        attrs="{'column_invisible':[('parent.exam_type','in',['3','4'])]}"/>
                                 <field name="ql_idx_id" readonly="1" style="text-align: left" invisible="1"/>
@@ -146,7 +153,7 @@
                     <group>
                         <button name="create_group_mcq" class="oe_highlight" string="Add"
                                 attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['3','4'])]}"
-                                type="object"></button>
+                                type="object" style="height: 30px; width: 100px; font-size: 12px;"></button>
                     </group>
 
                     <group>
@@ -199,7 +206,7 @@
                                     <button name="set_deletion" class="oe_highlight" string="Delete Group"
                                             confirm="Do you want delete group?"
                                             attrs="{'invisible': ['|',('state', '=', 'close'),('exam_type','in',['1','3','4'])]}"
-                                            type="object"></button>
+                                            type="object" style="height: 30px; width: 100px; font-size: 12px;"></button>
                                 </group>
 
 
@@ -243,10 +250,16 @@
                             </group>
                             <group>
                                 <button name="navigate_version" class="oe_highlight"
-                                        attrs="{'invisible':[('exam_type', '=', '1')]}"
                                         string="Final submit for generation"
+
                                         type="object"></button>
                             </group>
+                            <!--                            <group>-->
+                            <!--                                <button name="view_qp" class="oe_highlight"-->
+                            <!--                                        attrs="{'invisible':[('state', '!=', 'close')]}"-->
+                            <!--                                        string="View Question Paper"-->
+                            <!--                                        type="object"></button>-->
+                            <!--                            </group>-->
 
                         </page>
 
@@ -296,7 +309,15 @@
             <!--            <field name="domain_force">[('create_uid', '=', user.id)]</field>-->
         </record>
         <!--        Landing Dash-->
+        <record id="view_model_search_kanban_dash" model="ir.ui.view">
+            <field name="name">dash.kanban.search</field>
+            <field name="model">dash.kanban</field>
+            <field name="arch" type="xml">
+                <search>
 
+                </search>
+            </field>
+        </record>
         <record id="dash_kanban" model="ir.ui.view">
             <field name="name">dash.kanban.kanban</field>
             <field name="model">dash.kanban</field>
@@ -305,37 +326,86 @@
                     <field name="name"/>
                     <templates>
                         <t t-name="kanban-box">
-                            <div t-attf-class="oe_kanban_global_click"
-                                 t-att-style="'width: 250px; height: 250px;
-                                 display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border: 1px solid #ddd; border-radius: 10px; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); background-color:' + (
+
+                            <div t-att-style="'width: 400px; height: 250px;
+                                 display: flex; flex-direction: column; justify-content: center;
+                                 align-items: center; text-align: center; border: 1px solid #ddd;
+                                 border-radius: 10px; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+                                 background-color:' + (
                 record.name.raw_value == 'Design Paper View' and '#e3f2fd' or
                 record.name.raw_value == 'Design Paper Create' and '#e8f5e9' or
                 record.name.raw_value == 'Question Paper View' and '#fff3e0' or
                 '#f9f9f9'
             )">
+                                <!--                                <t groups="base.group_system">-->
+                                <!--                                    <div>-->
+                                <!--                                        settings-->
+                                <!--                                    </div>-->
+                                <!--                                </t>-->
 
-                                <strong>
-                                    <field name="name"/>
-                                </strong>
-
-                                <t t-if="record.name.raw_value == 'Design Paper View'">
-                                    <button type="object" name="design_paper_view" class="btn btn-secondary"
-                                            t-on-click="doAction('action_for_type1')">
-                                        View
+                                <!--                                <strong>-->
+                                <!--                                    <field name="display_name"/>-->
+                                <!--                                </strong>-->
+                                <t t-if="record.name.raw_value == 'Design Paper Create'">
+                                    <div>
+                                        <img src="/education_exam/static/src/img/Create.png" alt="Create Exam Event"
+                                             class="kanban-image" width="100px" height="100px"/>
+                                    </div>
+                                    <br></br>
+                                    <div>
+                                        To Create Exam Events
+                                    </div>
+                                    <br></br>
+                                    <button type="object" name="design_paper_create" class="btn btn-secondary"
+                                            t-on-click="doAction('action_for_type2')">
+                                        <strong>Create Exam Event</strong>
                                     </button>
                                 </t>
 
-                                <t t-if="record.name.raw_value == 'Design Paper Create'">
-                                    <button type="object" name="design_paper_create" class="btn btn-secondary"
-                                            t-on-click="doAction('action_for_type2')">
-                                        Create
+                                <t t-if="record.name.raw_value == 'Design Paper View'">
+                                    <div>
+                                        <img src="/education_exam/static/src/img/Edit.png" alt="Create Exam Event"
+                                             class="kanban-image" width="100px" height="100px"/>
+                                    </div>
+                                    <br></br>
+                                    <div>
+                                        To Edit Question Paper
+                                    </div>
+                                    <br></br>
+                                    <button type="object" name="design_paper_view" class="btn btn-secondary"
+                                            t-on-click="doAction('action_for_type1')">
+                                        <strong>Edit Question Paper</strong>
                                     </button>
                                 </t>
 
                                 <t t-if="record.name.raw_value == 'Question Paper View'">
+                                    <div>
+                                        <img src="/education_exam/static/src/img/Search.png" alt="Create Exam Event"
+                                             class="kanban-image" width="100px" height="100px"/>
+                                    </div>
+                                    <br></br>
+                                    <div>
+                                        To Search Question Paper
+                                    </div>
+                                    <br></br>
                                     <button type="object" name="view_question_paper" class="btn btn-secondary"
                                             t-on-click="doAction('action_for_type2')">
-                                        View
+                                        <strong>Search Question Paper</strong>
+                                    </button>
+                                </t>
+                                <t t-if="record.name.raw_value == 'Settings'">
+                                    <div>
+                                        <img src="/education_exam/static/src/img/Admin.png" alt="Create Exam Event"
+                                             class="kanban-image" width="100px" height="100px"/>
+                                    </div>
+                                    <br></br>
+                                    <div>
+                                        To Create User
+                                    </div>
+                                    <br></br>
+                                    <button type="object" name="view_settings" class="btn btn-secondary"
+                                            t-on-click="doAction('action_for_type2')">
+                                        <strong>Settings</strong>
                                     </button>
                                 </t>
                             </div>
@@ -348,7 +418,7 @@
         <record id="dash_kanban_view" model="ir.actions.act_window">
             <field name="name">Dash Board</field>
             <field name="res_model">dash.kanban</field>
-            <field name="view_mode">kanban</field>
+            <field name="view_mode">kanban,search</field>
             <field name="context">{'create': False}</field>
             <!--            <field name="target">current</field>-->
             <!--            <field name="context">{"search_default_today_filter":1}</field>-->
@@ -421,14 +491,19 @@
                         <field name="cvm_is_1_n" invisible="1"
                                options="{'no_create': True, 'no_create_edit':True,'no_open': True}" readonly="1"
                                groups="education_exam.group_education_principal"/>
+                        <field name="cvm_design_id" required="1" readonly="1"/>
+                        <field name="cvm_total_time"
+                               attrs="{'readonly': [('cvm_state', '!=', 'vs')],'required': [('cvm_state', '=', 'vs')]}"
+                               style="width:150px;"/>
+                        <field name="cvm_total_questions" readonly="1" style="width:100px;"/>
                     </group>
 
-                    <group>
-                        <field name="cvm_design_id" required="1" readonly="1"/>
-                        <field name="cvm_event_details" readonly="1" domain="cvm_event_details_domain" invisible="1"/>
-                        <field name="cvm_event_details_domain" invisible="1"/>
-                        <field name="cvm_subjects" readonly="1" attrs="{'invisible':  [('cvm_exam_type', '=',  2)]}"/>
-                    </group>
+                    <!--                    <group>-->
+
+                    <!--                        <field name="cvm_event_details" readonly="1" domain="cvm_event_details_domain" invisible="1"/>-->
+                    <!--                        <field name="cvm_event_details_domain" invisible="1"/>-->
+                    <!--                        <field name="cvm_subjects" readonly="1" attrs="{'invisible':  [('cvm_exam_type', '=',  2)]}"/>-->
+                    <!--                    </group>-->
 
 
                     <!--                        <field name="cvm_event_details" domain="cvm_event_details_domain"/>-->
@@ -443,43 +518,26 @@
                         </group>
                     </group>
 
-                    <group>
-                        <group col="6">
-                            <field name="cvm_easy_percent" style="width:150px;" readonly="0"
-                                   attrs="{'readonly': [('cvm_state', '!=', 'vs')],'invisible':  [('cvm_exam_type', '=',  2)]}"/>
-                            <field name="cvm_medium_percent" style="width:150px;" readonly="0"
-                                   attrs="{'readonly': [('cvm_state', '!=', 'vs')],'invisible':  [('cvm_exam_type', '=',  2)]}"/>
-                            <field name="cvm_hard_percent" readonly="1" style="width:150px;"
-                                   attrs="{'readonly': [('cvm_state', '!=', 'vs')],'invisible':  [('cvm_exam_type', '=',  2)]}"/>
-                        </group>
+
+                    <group col="6">
+                        <field name="cvm_easy_percent" style="width:150px;" readonly="0"
+                               attrs="{'readonly': [('cvm_state', '!=', 'vs')],'invisible':  [('cvm_exam_type', '=',  2)]}"/>
+                        <field name="cvm_medium_percent" style="width:150px;" readonly="0"
+                               attrs="{'readonly': [('cvm_state', '!=', 'vs')],'invisible':  [('cvm_exam_type', '=',  2)]}"/>
+                        <field name="cvm_hard_percent" readonly="1" style="width:150px;"
+                               attrs="{'readonly': [('cvm_state', '!=', 'vs')],'invisible':  [('cvm_exam_type', '=',  2)]}"/>
                     </group>
 
-                    <group>
-                        <group>
-                            <field name="cvm_total_time"
-                                   attrs="{'readonly': [('cvm_state', '!=', 'vs')],'required': [('cvm_state', '=', 'vs')]}"
-                                   style="width:150px;"/>
-                        </group>
-                    </group>
-
-                    <group>
-                        <field name="cvm_total_questions" readonly="1" style="width:100px;"/>
-                    </group>
+                    <!--                    <group>-->
+                    <!--                        <button name="calculate_jn" class="oe_highlight" string="Calculate"-->
+                    <!--                                type="object" invisible="1"></button>-->
+                    <!--                    </group>-->
 
 
-                    <group>
-                        <button name="calculate_jn" class="oe_highlight" string="Calculate"
-                                type="object" invisible="1"></button>
-                    </group>
-
-                    <group>
-                    </group>
-
-
-                    <group>
-                        <!--                        <button name="show_summary_version" type="object"-->
-                        <!--                                class="oe_highlight" string="Show"/>-->
-                    </group>
+                    <!--                    <group>-->
+                    <!--                        <button name="show_summary_version" type="object"-->
+                    <!--                                class="oe_highlight" string="Show"/>-->
+                    <!--                    </group>-->
                     <!--                    <group>-->
                     <!--                        <button name="schedule" class="oe_highlight"-->
                     <!--                                                string="Refresh"-->
@@ -1093,9 +1151,9 @@
                 ==================================================================== -->
         <menuitem id="examination_root_menu" name="Exam Management" sequence="200" action="dash_kanban_view"/>
 
-        <menuitem id="examination_main_menu" parent="education_exam.examination_root_menu"
-                  groups="education_exam.group_education_principal"
-                  name="Paper" action="act_examination_view" sequence="1"/>
+        <!--        <menuitem id="examination_main_menu" parent="education_exam.examination_root_menu"-->
+        <!--                  groups="education_exam.group_education_principal"-->
+        <!--                  name="Paper" action="act_examination_view" sequence="1"/>-->
         <!--        <menuitem id="examination_create_design_menu" parent="education_exam.examination_main_menu"-->
         <!--                  name="Design Paper" action="act_examination_view" sequence="5"/>-->
         <!--        <menuitem id="examination_update_design_menu" parent="education_exam.examination_main_menu"-->
@@ -1103,15 +1161,15 @@
 
         <!--        <menuitem id="examination_configuration_menu" parent="education_exam.examination_root_menu"-->
         <!--                  name="Set Version" action="act_examination_view" sequence="4"/>-->
-        <menuitem id="examination_version_menu" parent="education_exam.examination_root_menu"
-                  groups="education_exam.group_education_principal"
-                  name="Set Version" action="act_version_view" sequence="2"/>
-        <menuitem id="db_logs_menu" parent="education_exam.examination_root_menu"
-                  groups="education_exam.group_education_principal"
-                  name="DB Logs" action="act_db_view" sequence="4"/>
-        <menuitem id="id_process_menu" parent="education_exam.examination_root_menu"
-                  groups="education_exam.group_education_principal"
-                  name="ID process" action="act_id_view" sequence="5"/>
+        <!--        <menuitem id="examination_version_menu" parent="education_exam.examination_root_menu"-->
+        <!--                  groups="education_exam.group_education_principal"-->
+        <!--                  name="Set Version" action="act_version_view" sequence="2"/>-->
+        <!--        <menuitem id="db_logs_menu" parent="education_exam.examination_root_menu"-->
+        <!--                  groups="education_exam.group_education_principal"-->
+        <!--                  name="DB Logs" action="act_db_view" sequence="4"/>-->
+        <!--        <menuitem id="id_process_menu" parent="education_exam.examination_root_menu"-->
+        <!--                  groups="education_exam.group_education_principal"-->
+        <!--                  name="ID process" action="act_id_view" sequence="5"/>-->
         <!--        <menuitem id="examination_create_design_menu" parent="education_exam.examination_main_menu"-->
         <!--                  name="Design Paper" action="act_examination_view" sequence="5"/>-->
 
@@ -1122,16 +1180,16 @@
 
         <!--        <menuitem id="examination_ques_menu" parent="education_exam.examination_questionpaper_menu"-->
         <!--                  name="Question Paper" action="act_question_view" sequence="1"/>-->
-        <menuitem id="examination_subject_menu" parent="education_exam.examination_root_menu"
-                  groups="education_exam.group_education_principal"
-                  name="Subject" action="act_subject_view" sequence="6"/>
+        <!--        <menuitem id="examination_subject_menu" parent="education_exam.examination_root_menu"-->
+        <!--                  groups="education_exam.group_education_principal"-->
+        <!--                  name="Subject" action="act_subject_view" sequence="6"/>-->
         <!--        <menuitem id="examination_mark_menu" parent="education_exam.examination_questionpaper_menu"-->
         <!--                  name="Mark" action="act_mark_view" sequence="3"/>-->
         <!--                <menuitem id="examination_standard_menu" parent="education_exam.examination_root_menu"-->
         <!--                          name="Standard" action="act_standard_view" sequence="8"/>-->
-        <menuitem id="examination_schedule_menu" parent="education_exam.examination_root_menu"
-                  groups="education_exam.group_education_principal"
-                  name="Schedule" action="act_schedule_view" sequence="6"/>
+        <!--        <menuitem id="examination_schedule_menu" parent="education_exam.examination_root_menu"-->
+        <!--                  groups="education_exam.group_education_principal"-->
+        <!--                  name="Schedule" action="act_schedule_view" sequence="6"/>-->
         <!--        <menuitem id="examination_difficulty_menu" parent="education_exam.examination_questionpaper_menu"-->
         <!--                  name="Difficulty" action="act_difficulty_view" sequence="5"/>-->
         <!--        <menuitem id="examination_setsection_menu" parent="education_exam.examination_questionpaper_menu"-->
@@ -1148,16 +1206,7 @@
         <!--                </div>-->
         <!--            </body>-->
         <!--        </template>-->
-        <!--        question_paper_id-->
-        <!--        <record id="view_question_paper_id_line_tree" model="ir.ui.view">-->
-        <!--            <field name="name">question.paper.id.line.tree</field>-->
-        <!--            <field name="model">question.paper.id.line</field>-->
-        <!--            <field name="arch" type="xml">-->
-        <!--                <tree string="Question Paper ID Line" create="false" delete="false">-->
-        <!--                    <field name="paper_id"/>-->
-        <!--                </tree>-->
-        <!--            </field>-->
-        <!--        </record>-->
+        <!--        QUESTION PAPER ID TREE VIEW STARS-->
         <record id="view_question_paper_id_line_tree" model="ir.ui.view">
             <field name="name">question.paper.id.line.tree</field>
             <field name="model">question.paper.id.line</field>
@@ -1172,31 +1221,102 @@
                     <field name="medium"/>
                     <button string="Print Questions" type="object" name="action_view_questions" icon="fa-download"/>
                     <button string="View Questions" type="object" name="action_view_questions_template" icon="fa-eye"/>
-                    <button string="View Answers" type="object" name="action_view_questions_answer" icon="fa-print"
+                    <button string="Print Answers" type="object" name="action_view_questions_answer" icon="fa-print"
                             groups="base.group_system"/>
                 </tree>
             </field>
         </record>
-        <record id="view_question_paper_id_line_search" model="ir.ui.view">
-            <field name="name">question.paper.id.line.search</field>
-            <field name="model">question.paper.id.line</field>
-            <field name="arch" type="xml">
-                <search string="Question Paper ID Line Search">
-                    <field name="paper_id"/>
-                    <field name="schedule_id"/>
-                    <field name="exam_name"/>
-                    <field name="subject_name"/>
-                    <field name="standard_dropdown"/>
-                    <field name="medium"/>
-                </search>
-            </field>
-        </record>
-
         <record id="action_question_paper_id_line" model="ir.actions.act_window">
             <field name="name">Question Paper ID</field>
             <field name="res_model">question.paper.id.line</field>
-            <field name="view_mode">tree,form,search</field>
+            <field name="view_mode">tree</field>
         </record>
+
+        <!--        QUESTION PAPER ID TREE VIEW ENDS-->
+
+        <record id="view_question_paper_id_line_form" model="ir.ui.view">
+            <field name="name">view.search.paper.form</field>
+            <field name="model">search.paper</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <group>
+                            <div style="display: flex; justify-content: center; gap: 15px; align-items: center;">
+                                <label for="exam_name" style="font-weight: bold;">Event Name</label>
+                                <field name="exam_name"/>
+                            </div>
+                        </group>
+                    </group>
+
+                    <group>
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <label for="subject_id" style="font-weight: bold;">Subject</label>
+                            <field name="subject_id" options="{'no_create_edit': True, 'no_open': True}"
+                                   style="flex-grow: 0; width: 200px;position:relative;left:15px"/>
+
+                            <label for="medium_id" style="font-weight: bold;position:relative;left:10px">Medium</label>
+                            <field name="medium_id" options="{'no_create_edit': True, 'no_open': True}"
+                                   style="flex-grow: 0; width: 200px;"/>
+
+                            <label for="standard_dropdown" style="font-weight: bold;">Standard</label>
+                            <field name="standard_dropdown" style="flex-grow: 0; width: 120px;"/>
+
+                            <label for="created_date" style="font-weight: bold;">Created Date</label>
+                            <field name="created_date" style="flex-grow: 0; width: 200px;"/>
+                        </div>
+                    </group>
+
+                    <group>
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <button string="Search Questions" type="object" name="action_search_questions_ids"
+                                    class="btn-primary"/>
+                        </div>
+                    </group>
+
+
+                    <notebook>
+                        <page string="question papers">
+                            <field name="question_ids">
+                                <tree editable="false" create="false">
+                                    <field name="paper_id"/>
+                                    <field name="schedule_id"/>
+                                    <field name="exam_name"/>
+                                    <field name="subject_name"/>
+                                    <field name="standard_dropdown"/>
+                                    <field name="medium"/>
+                                    <field name="create_date" widget="date"/>
+                                    <button string="Print Questions" type="object" name="action_view_questions"
+                                            icon="fa-download"/>
+                                    <button string="View Questions" type="object" name="action_view_questions_template"
+                                            icon="fa-eye"/>
+                                    <button string="Print Answers" type="object" name="action_view_questions_answer"
+                                            icon="fa-print"
+                                            groups="base.group_system"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </form>
+            </field>
+        </record>
+        <record id="view_question_paper_id_line_search" model="ir.ui.view">
+            <field name="name">search.paper.search</field>
+            <field name="model">search.paper</field>
+            <field name="arch" type="xml">
+                <search string="Question Paper ID Line Search">
+
+                    <field name="subject_id"/>
+                    <field name="medium_id"/>
+                </search>
+            </field>
+        </record>
+        <record id="action_question_paper_id_line" model="ir.actions.act_window">
+            <field name="name">Question Paper ID</field>
+            <field name="res_model">search.paper</field>
+            <field name="view_mode">form,tree,search</field>
+        </record>
+
+        <!--        search paper-->
         <!--        question_paper_line-->
         <record id="view_question_paper_line_tree" model="ir.ui.view">
             <field name="name">question.paper.line.tree</field>
@@ -1220,5 +1340,52 @@
             <field name="view_mode">tree,form</field>
             <field name="domain">[('paper_id', '=', active_id)]</field>
         </record>
+        <!--        question paper search wizard-->
+        <record id="view_question_paper_filter_wizard_form" model="ir.ui.view">
+            <field name="name">question.paper.filter.wizard.form</field>
+            <field name="model">question.paper.filter.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Filter Question Papers">
+                    <group>
+                        <field name="subject_id" options="{'no_open': True}" required="1"/>
+                        <field name="medium_id" options="{'no_open': True}" required="1"/>
+                        <field name="standard_dropdown" required="1"/>
+                        <field name="exam_name"/>
+                    </group>
+                    <footer>
+                        <button name="action_filter_question_papers" string="Apply Filter" type="object"
+                                class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <template id="login_form_inherit" inherit_id="web.login">
+            <!-- Change Email Label to Username with class -->
+            <xpath expr="//label[@for='login']" position="replace">
+                <label for="login" class="form-label o_login_label">Username</label>
+            </xpath>
+            <xpath expr="//button[@name='redirect']" position="replace">
+
+            </xpath>
+
+
+            <!-- Update the Username Input Field with class -->
+            <xpath expr="//input[@name='login']" position="replace">
+                <input type="text" name="login" class="form-control o_login_input" placeholder="Username"
+                       required="required"/>
+            </xpath>
+
+            <!-- Ensure the Password Field is Styled Correctly -->
+            <xpath expr="//input[@name='password']" position="attributes">
+                <attribute name="class">form-control o_login_input</attribute>
+            </xpath>
+        </template>
+        <template id="login_link_inherit" inherit_id="web.login_layout">
+            <xpath expr="//a[@target='_blank']" position="replace">
+            </xpath>
+        </template>
+
     </data>
 </odoo>

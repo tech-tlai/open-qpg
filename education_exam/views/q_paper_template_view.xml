@@ -8,38 +8,102 @@
     </record>
 
     <template id="q_paper_template_view_id">
+<!--        <button class="btn btn-primary"-->
+<!--                style="font-size: 16px; padding: 10px 20px; height: 50px; width: 200px;"-->
+<!--                onclick="window.print();">-->
+<!--            Print Question Paper-->
+<!--        </button>-->
         <t t-call="web.html_container">
             <div class="page">
-                <h2>Question Paper</h2>
+                <h1 style="text-align: center;">Question Paper</h1>
+                <hr/>
                 <t t-if="docs">
-                    <strong>EXAM NAME :</strong> <span t-field="docs.qp_id_line_id.exam_name"/>
-                    <br/>
-                    <strong>VERSION NUMBER:</strong> <span t-field="docs.qp_id_line_id.paper_id"/>
-                    <br/>
-                    <strong>TOTAL TIME:</strong> <span t-field="docs.qp_id_line_id.version_master_id.cvm_total_time"/>
-                    <br/>
-                    <strong>TOTAL QUESTIONS :</strong> <span t-field="docs.qp_id_line_id.version_master_id.cvm_total_questions"/>
-                    <br/>
-                    <strong>STANDARD :</strong> <span t-field="docs.qp_id_line_id.standard_dropdown"/>
-                    <br/>
-                    <strong>MEDIUM :</strong> <span t-field="docs.qp_id_line_id.medium"/>
+                    <table>
+                        <tr>
+                            <td>
+                                <strong>Exam Name:</strong>
+                            </td>
+                            <td>
+                                <span t-field="docs.qp_id_line_id.exam_name"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Subject Name:</strong>
+                            </td>
+                            <td>
+                                <span t-field="docs.qp_id_line_id.subject_name"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Question paper ID:</strong>
+                            </td>
+                            <td>
+                                <span t-field="docs.qp_id_line_id.paper_id"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Total Time:</strong>
+                            </td>
+                            <td>
+                                <span t-field="docs.qp_id_line_id.version_master_id.cvm_total_time"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Total Questions:</strong>
+                            </td>
+                            <td>
+                                <span t-field="docs.qp_id_line_id.version_master_id.cvm_total_questions"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Standard:</strong>
+                            </td>
+                            <td>
+                                <span t-field="docs.qp_id_line_id.standard_dropdown"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Medium:</strong>
+                            </td>
+                            <td>
+                                <span t-field="docs.qp_id_line_id.medium"/>
+                            </td>
+                        </tr>
+                    </table>
+                    <hr/>
                     <t t-set="index" t-value="0"/>
                     <t t-foreach="docs" t-as="o">
                         <t t-set="index" t-value="index + 1"/>
                         <div class="oe_structure"/>
                         <p>
-                            <strong><span t-esc="index"/>.</strong> <!-- Serial Number -->
+                            <strong><span t-esc="index"/>.
+                            </strong>
                             <span t-field="o.question_text"/>
                         </p>
-                        <p>
-                            <strong>A. </strong><span t-field="o.option1"/>
-                            <br/> <!-- First option -->
-                            <strong>B. </strong><span t-field="o.option2"/>
-                            <br/> <!-- Second option -->
-                            <strong>C. </strong><span t-field="o.option3"/>
-                            <br/> <!-- Third option -->
-                            <strong>D. </strong><span t-field="o.option4"/> <!-- Fourth option -->
-                        </p>
+                        <ul>
+                            <li>
+                                <strong>A.</strong>
+                                <span t-field="o.option1"/>
+                            </li>
+                            <li>
+                                <strong>B.</strong>
+                                <span t-field="o.option2"/>
+                            </li>
+                            <li>
+                                <strong>C.</strong>
+                                <span t-field="o.option3"/>
+                            </li>
+                            <li>
+                                <strong>D.</strong>
+                                <span t-field="o.option4"/>
+                            </li>
+                        </ul>
                     </t>
                 </t>
                 <t t-else="">

@@ -39,8 +39,53 @@
         <record id="seq_id" model="ir.sequence">
             <field name="name">Schedule ID</field>
             <field name="code">schedule.code</field>
-            <field name="padding">9</field>
+            <field name="prefix">1</field>
+            <field name="padding">8</field>
             <field name="company_id" eval="False"/>
         </record>
+
+        <!--        record for dash_kanban-->
+        <record id="design_paper_create" model="dash.kanban">
+            <field name="name">Design Paper Create</field>
+            <field name="display_name">Create Exam Event</field>
+            <field name="is_admin_only">False</field>
+        </record>
+
+        <record id="design_paper_view" model="dash.kanban">
+            <field name="name">Design Paper View</field>
+            <field name="display_name">View Exam Event List</field>
+            <field name="is_admin_only">False</field>
+        </record>
+
+        <record id="question_paper_view" model="dash.kanban">
+            <field name="name">Question Paper View</field>
+            <field name="display_name">Search Question Paper</field>
+            <field name="is_admin_only">False</field>
+        </record>
+
+        <record id="settings" model="dash.kanban">
+            <field name="name">Settings</field>
+            <field name="display_name">Settings</field>
+            <field name="is_admin_only">True</field>
+        </record>
+
+        <record id="medium_english" model="medium.master.table">
+            <field name="mmt_medium_code">19</field>
+            <field name="mmt_medium_name">English</field>
+            <field name="is_active">True</field>
+        </record>
+        <!--        record for question type-->
+        <record id="question_type_mcq" model="question.type.master">
+            <field name="qtm_type_code">5000</field>
+            <field name="qtm_type_name">MCQ</field>
+            <field name="qtm_is_active">True</field>
+        </record>
+        <record id="question_format_text" model="question.format.master">
+            <field name="qfm_format_code">1000</field>
+            <field name="qfm_format_name">Text</field>
+            <field name="qfm_active">True</field>
+        </record>
+
+
     </data>
 </odoo>

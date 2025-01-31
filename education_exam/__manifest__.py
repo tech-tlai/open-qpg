@@ -33,7 +33,7 @@
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
     'website': "https://www.educationalerp.com",
-    'depends': ['base_setup','web'],
+    'depends': ['base_setup', 'web', 'base'],
     'data': [
         'security/education_security.xml',
         'security/ir.model.access.csv',
