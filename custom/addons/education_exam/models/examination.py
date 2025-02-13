@@ -35,6 +35,11 @@ import time
 import requests
 from bs4 import BeautifulSoup
 
+import xlsxwriter
+import io
+import base64
+import openpyxl
+import csv
 # import pyautogui
 
 _logger = logging.getLogger(__name__)
@@ -477,6 +482,7 @@ class EducationExam(models.Model):
         # print(int(self.medium), int(self.standard_dropdown), self.subject.subject_name)
         # prgram_start = time.time()
         ############# topic dropdown ############################
+        print('self.selection_criteria', self.selection_criteria)
         if self.selection_criteria == '2':
             mcq_search_qry = """
                        SELECT 
@@ -1598,11 +1604,11 @@ class VersionMaster(models.Model):
 	    qpd.qpd_paper_id,
     qmt.qmt_question_code, 
     qmt.qmt_q_text,
-   	qat.qat_option1,
-	qat.qat_option2,
-	qat.qat_option3,
-	qat.qat_option4,
-	qat.qat_correct_answer
+   	qmt.qmt_option1,
+	qmt.qmt_option2,
+	qmt.qmt_option3,
+	qmt.qmt_option4,
+	qmt.qmt_correct_answer
 FROM 
     question_paper_details qpd
 CROSS JOIN LATERAL 
@@ -1610,8 +1616,6 @@ CROSS JOIN LATERAL
 LEFT JOIN 
     question_master_table qmt
     ON qmt.qmt_question_code = CAST(question_id AS INTEGER)
-JOIN question_answer_table qat
-	ON qat.qat_question_code = qmt.qmt_question_code
 WHERE 
     qpd.qpd_schedule_id = %s
     ORDER BY qpd.qpd_paper_id;
@@ -2271,26 +2275,31 @@ class QuestionMasterTable(models.Model):
     qmt_created_date = fields.Date(string='Created Date')
     qmt_updated_date = fields.Date(string='Created Date')
     qmt_is_active = fields.Boolean(string="Is Active")
+    qmt_option1 = fields.Char(string='Option 1', default='Option 1')
+    qmt_option2 = fields.Char(string='Option 2', default='Option 2')
+    qmt_option3 = fields.Char(string='Option 3', default='Option 3')
+    qmt_option4 = fields.Char(string='Option 4', default='Option 4')
+    qmt_correct_answer = fields.Char(string='Correct Answer')
 
     _sql_constraints = [
         ('unique_qmt_question_code', 'UNIQUE(qmt_question_code)', 'Question Code must be unique!')
     ]
 
 
-class QuestionAnswerTable(models.Model):
-    _name = 'question.answer.table'
-    _description = 'Question Answer Table'
-    _rec_name = ''
-
-    qat_question_id = fields.Many2one('question.master.table')
-    qat_question_code = fields.Integer(string='Question Code', related='qat_question_id.qmt_question_code', store=True)
-    qat_option1 = fields.Char(string='Option 1')
-    qat_option2 = fields.Char(string='Option 2')
-    qat_option3 = fields.Char(string='Option 3')
-    qat_option4 = fields.Char(string='Option 4')
-    qat_correct_answer = fields.Char(string='Correct Answer', required=True)
-    qat_type_id = fields.Many2one('question.type.master', string='Q Type')
-    qat_type_code = fields.Integer(string='Q Type Code', related='qat_type_id.qtm_type_code', store=True)
+# class QuestionAnswerTable(models.Model):
+#     _name = 'question.answer.table'
+#     _description = 'Question Answer Table'
+#     _rec_name = ''
+#
+#     qat_question_id = fields.Many2one('question.master.table')
+#     qat_question_code = fields.Integer(string='Question Code', related='qat_question_id.qmt_question_code', store=True)
+#     qat_option1 = fields.Char(string='Option 1', default='Option 1')
+#     qat_option2 = fields.Char(string='Option 2', default='Option 2')
+#     qat_option3 = fields.Char(string='Option 3', default='Option 3')
+#     qat_option4 = fields.Char(string='Option 4', default='Option 4')
+#     qat_correct_answer = fields.Char(string='Correct Answer', required=True)
+#     qat_type_id = fields.Many2one('question.type.master', string='Q Type')
+#     qat_type_code = fields.Integer(string='Q Type Code', related='qat_type_id.qtm_type_code', store=True)
 
 
 class QuestionPaperDetails(models.Model):
@@ -2448,6 +2457,14 @@ class DashKanban(models.Model):
         # }
         return self.env.ref('base_setup.action_general_configuration').read()[0]
 
+    def file_upload(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'QA Upload',
+            'view_mode': 'form',
+            'res_model': 'question.answer.bulk.upload',
+        }
+
 
 class QuestionPaperSearch(models.Model):
     _name = 'search.paper'
@@ -2524,3 +2541,265 @@ class QuestionPaperFilterWizard(models.TransientModel):
             'res_model': 'question.paper.id.line',
             'domain': domain,
         }
+
+class QuestionAnswerBulkUpload(models.TransientModel):
+    _name = 'question.answer.bulk.upload'
+
+    model_name = fields.Selection(
+        [('answer_table', 'Answer Table'), ('question_table', 'Question Table')],
+        string='Data Upload', default='answer_table', required=True)
+    qa_file = fields.Binary(string="Upload excel file")
+    template_file = fields.Binary(string="Sample Template file")
+    q_type = fields.Many2one('question.type.master', string="Question Type", default=1)
+    q_format = fields.Many2one('question.format.master', string="Question Format", default=1)
+
+    def download_file(self):
+        # print('print_print', self.model_name)
+        if self.model_name == 'answer_table':
+            return self.env.ref('education_exam.download_qa_template_xl').report_action(self)
+
+    def upload_file(self):
+        try:
+            if not self.qa_file:
+                raise ValidationError(_("Please upload a valid file."))
+
+            file_data = base64.b64decode(self.qa_file)
+            file_type = self._detect_file_type(file_data)
+
+            if file_type == 'xlsx':
+                self._process_excel(file_data)
+            elif file_type == 'csv':
+                self._process_csv(file_data)
+            else:
+                raise ValidationError(_("Invalid file type. Please upload an Excel (.xlsx) or CSV (.csv) file."))
+
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Success',
+                    'message': 'Data uploaded successfully!',
+                    'sticky': True,
+                    'type': 'success',
+                }
+            }
+        except Exception as e:
+            raise UserError(_('Error: %s' % str(e)))
+
+    def _detect_file_type(self, file_data):
+        """Detects whether the uploaded file is an Excel (.xlsx) or CSV (.csv) file."""
+        try:
+            # Try opening as an Excel file
+            openpyxl.load_workbook(io.BytesIO(file_data))
+            return 'xlsx'
+        except Exception:
+            pass
+
+        try:
+            # Try reading as a CSV file
+            io.StringIO(file_data.decode('utf-8'))
+            return 'csv'
+        except Exception:
+            pass
+
+        return None
+
+    def _process_excel(self, file_data):
+        wb = openpyxl.load_workbook(io.BytesIO(file_data), read_only=True)
+        ws = wb.active
+        self._validate_headers(next(ws.iter_rows(min_row=1, max_row=1, values_only=True)))
+        self._process_records(ws.iter_rows(min_row=2, values_only=True))
+
+    def _process_csv(self, file_data):
+        print('reading csv')
+        csv_reader = csv.reader(io.StringIO(file_data.decode('utf-8')))
+        headers = tuple(next(csv_reader, None))
+
+        self._validate_headers(headers)
+        self._process_records(csv_reader)
+
+    def _validate_headers(self, headers):
+        expected_headers = (
+        'q_id','q_text', 'chapter_name', 'topic_name', 'class_studying_id',	'subject_id', 'medium_code', 'subject_code',
+        'subject_name', 'qat_option1', 'qat_option2', 'qat_option3', 'qat_option4',	'qat_correct_answer')
+        if headers != expected_headers:
+            raise ValidationError(_("Incorrect headers. Please upload data in the correct template."))
+
+    def _process_records(self, records):
+        try:
+            with self.env.cr.savepoint():  # Start a transaction
+                for record in records:
+                    # Convert record tuple to dict for easier handling
+                    row = {
+                        'q_id': record[0],
+                        'q_text': record[1],
+                        'chapter_name': record[2],
+                        'topic_name': record[3],
+                        'class_studying_id': record[4],
+                        'subject_id': record[5],
+                        'medium_code': record[6],
+                        'subject_code': record[7],
+                        'subject_name': record[8],
+                        'qat_option1': record[9],
+                        'qat_option2': record[10],
+                        'qat_option3': record[11],
+                        'qat_option4': record[12],
+                        'qat_correct_answer': record[13]
+                    }
+
+                    existing_chapter = self.env['subject.taxonomy.master'].search([
+                        ('stm_chapter_name', '=', str(row['chapter_name'])),
+                        ('stm_standard', '=', row['class_studying_id'])
+                    ], limit=1)
+
+                    if existing_chapter:
+                        # Reuse the existing chapter code
+                        chapter_sequence = existing_chapter.stm_chapter_code
+                    else:
+                        # Generate a new sequence if not found
+                        chapter_sequence = self.env['ir.sequence'].next_by_code('chapter.sequence')
+
+                    # Generate topic and taxonomy sequences
+                    topic_sequence = self.env['ir.sequence'].next_by_code('topic.sequence')
+                    taxonomy_sequence = self.env['ir.sequence'].next_by_code('taxonomy.sequence')
+
+                    # Assign values to row
+                    row['chapter_unique_id'] = chapter_sequence
+                    row['topic_unique_id'] = topic_sequence
+                    row['taxonomy_id'] = taxonomy_sequence
+
+                    # Check if subject exists
+                    subject = self.env['subject.master.table'].search([
+                        ('smt_subject_code', '=', int(row['subject_code']))
+                    ], limit=1)
+
+                    if not subject:
+                        # Create subject if it doesn't exist
+                        subject = self.env['subject.master.table'].create({
+                            'smt_subject_code': int(row['subject_code']),
+                            'smt_subject_name': row['subject_name'],
+                            'smt_medium_id': 1,
+                            'smt_medium_code': row['medium_code'],
+                            'smt_created_date': fields.Datetime.now(),
+                            'smt_is_active': True,
+                            'smt_standard': row['class_studying_id']
+                        })
+
+                    # Check if chapter exists
+                    chapter = self.env['chapter.list'].search([
+                        ('cl_chapter_name', '=', str(row['chapter_name'])),
+                        ('cl_medium_id', '=', int(row['medium_code'])),
+                        ('cl_standard', '=', int(row['class_studying_id'])),
+                        ('cl_subject_id', '=', int(row['subject_code']))
+                    ], limit=1)
+
+                    if not chapter:
+                        # Create chapter if it doesn't exist
+                        chapter = self.env['chapter.list'].create({
+                            'cl_chapter_name': str(row['chapter_name']),
+                            'cl_chapter_id': row['chapter_unique_id'],
+                            'cl_medium_id': int(row['medium_code']),
+                            'cl_standard': int(row['class_studying_id']),
+                            'cl_subject_id': int(row['subject_code'])
+                        })
+
+                    # Check if taxonomy already exists
+                    taxonomy = self.env['subject.taxonomy.master'].search([
+                        ('stm_chapter_name', '=', str(row['chapter_name'])),
+                        ('stm_topic_name', '=', str(row['topic_name'])),
+                        ('stm_standard', '=', row['class_studying_id']),
+                    ], limit=1)
+
+                    if not taxonomy:
+                        # Create taxonomy if it doesn't exist
+                        taxonomy = self.env['subject.taxonomy.master'].create({
+                            'stm_taxonomy_code': row['taxonomy_id'],
+                            'stm_chapter_code': row['chapter_unique_id'],
+                            'stm_chapter_name': row['chapter_name'],
+                            'stm_standard': row['class_studying_id'],
+                            'stm_topic_name': row['topic_name'],
+                            'stm_created_date': fields.Datetime.now(),
+                            'stm_is_active': True,
+                            'stm_subject_code': row['subject_code'],
+                            'stm_subject_id': subject.id,
+                            'stm_topic_code': row['topic_unique_id'],
+                            'stm_medium_code': row['medium_code'],
+                            'stm_medium_id': 1
+                        })
+
+                    # Clean question text
+                    cleaned_q_text = re.sub('<.*?>', '', str(row['q_text']))
+                    cleaned_q_text = re.sub(r'\s+', ' ', cleaned_q_text).strip()
+
+                    if cleaned_q_text:
+                        # Check if question exists
+                        question = self.env['question.master.table'].search([
+                            ('qmt_question_code', '=', str(row['q_id']))
+                        ], limit=1)
+
+                        if not question:
+                            # Create question if it doesn't exist
+                            question = self.env['question.master.table'].create({
+                                'qmt_question_code': int(row['q_id']),
+                                'qmt_q_text': cleaned_q_text,
+                                'qmt_type_id': 1,
+                                'qmt_format_id': 1,
+                                'qmt_marks': 1,
+                                'qmt_taxonomy_code': row['taxonomy_id'],
+                                'qmt_taxonomy_id': taxonomy.id,
+                                'qmt_created_date': fields.Datetime.now(),
+                                'qmt_is_active': True,
+                                'qmt_type_code': 5000,
+                                'qmt_format_code': 1000,
+                                'qmt_option1': row['qat_option1'],
+                                'qmt_option2': row['qat_option2'],
+                                'qmt_option3': row['qat_option3'],
+                                'qmt_option4': row['qat_option4'],
+                                'qmt_correct_answer': row['qat_correct_answer']
+                            })
+
+        except Exception as e:
+            self.env.cr.rollback()  # Rollback transaction on failure
+            raise ValidationError(_("Error processing file: %s") % str(e))
+
+
+class QATemplateXlsxUpload(models.AbstractModel):
+    _name = 'report.education_exam.qa_template_xl'
+    _inherit = 'report.report_xlsx.abstract'
+
+    def generate_xlsx_report(self, workbook, data, objects):
+        sheet = workbook.add_worksheet('QA Template')
+        bold = workbook.add_format({'bold': True})
+
+        for obj in objects:
+            if obj.model_name == 'answer_table':
+                headers = ['q_id','q_text', 'chapter_name', 'topic_name', 'class_studying_id',	'subject_id', 'medium_code', 'subject_code',
+        'subject_name', 'qat_option1', 'qat_option2', 'qat_option3', 'qat_option4',	'qat_correct_answer']
+                sample_data = [
+                    ['1326444',	'Test question', 'Gross Domestic  Product and  its Growth: an  Introduction', 'Introduction',10,8,19,19100008,'Social Science','Both A and R are true, and R is the correct explanation of A','Both A and R are true, but R is not the correct explanation of A','A is true, but R is false',
+                     'A is false, but R is true', 'qat_option1'
+]
+                ]
+
+            for col, header in enumerate(headers):
+                sheet.write(0, col, header, bold)
+
+            for row_num, row_data in enumerate(sample_data, start=1):
+                for col_num, value in enumerate(row_data):
+                    sheet.write(row_num, col_num, value)
+
+        # Sheet 2: Instructions
+        instruction_sheet = workbook.add_worksheet('Instructions')
+        instruction_format = workbook.add_format({'bold': True, 'font_color': 'black'})
+
+        instructions = [
+            "Instructions for Answer Data Bulk Upload:",
+            "1. Fill the 'QA Template' sheet with your data.",
+            "2. Ensure that the column headers remain unchanged.",
+            "3. The 'question_code' should match an existing question in the database.",
+            "4. Only one correct answer should be selected per question.",
+            "5. Save the file and upload it through the system."
+        ]
+
+        for row, instruction in enumerate(instructions):
+            instruction_sheet.write(row, 0, instruction, instruction_format)

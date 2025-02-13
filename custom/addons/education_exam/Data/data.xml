@@ -68,6 +68,11 @@
             <field name="display_name">Settings</field>
             <field name="is_admin_only">True</field>
         </record>
+        <record id="fileupload" model="dash.kanban">
+            <field name="name">File Upload</field>
+            <field name="display_name">File Upload</field>
+            <field name="is_admin_only">True</field>
+        </record>
 
         <record id="medium_english" model="medium.master.table">
             <field name="mmt_medium_code">19</field>
@@ -84,6 +89,32 @@
             <field name="qfm_format_code">1000</field>
             <field name="qfm_format_name">Text</field>
             <field name="qfm_active">True</field>
+        </record>
+        <record id="chapter_sequence" model="ir.sequence">
+            <field name="name">Chapter Sequence</field>
+            <field name="code">chapter.sequence</field>
+            <field name="prefix"></field>  <!-- No prefix -->
+            <field name="padding">4</field>  <!-- 4-digit sequence -->
+            <field name="prefix">1</field>  <!-- Starts at 1 -->
+
+        </record>
+
+        <record id="topic_sequence" model="ir.sequence">
+            <field name="name">Topic Sequence</field>
+            <field name="code">topic.sequence</field>
+            <field name="prefix"></field>  <!-- No prefix -->
+            <field name="padding">5</field>  <!-- 4-digit sequence -->
+            <field name="prefix">6</field>  <!-- Starts at 6 -->
+
+        </record>
+
+        <record id="taxonomy_sequence" model="ir.sequence">
+            <field name="name">Taxonomy Sequence</field>
+            <field name="code">taxonomy.sequence</field>
+            <field name="prefix"></field>  <!-- No prefix -->
+            <field name="padding">6</field>  <!-- 10-digit sequence -->
+            <field name="prefix">19</field>  <!-- Starts at 19 -->
+
         </record>
 
 

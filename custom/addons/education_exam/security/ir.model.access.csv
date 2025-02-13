@@ -33,7 +33,11 @@ access_medium_master_table,Access Medium Master Table,model_medium_master_table,
 education_exam.access_question_paper_filter_wizard,access_question_paper_filter_wizard,education_exam.model_question_paper_filter_wizard,education_exam.group_education_faculty,1,1,1,1
 education_exam.access_search_paper,access_search_paper,education_exam.model_search_paper,education_exam.group_education_faculty,1,1,1,1
 ir_actions_report_access,ir.actions.report.access,base.model_ir_actions_report,education_exam.group_education_faculty,1,1,1,1
+education_exam.access_question_answer_bulk_upload,access_question_answer_bulk_upload,education_exam.model_question_answer_bulk_upload,,1,1,1,1
+education_exam.access_question_master_table,access_question_master_table,education_exam.model_question_master_table,,1,1,1,1
 
+education_exam.access_question_type_master,access_question_type_master,education_exam.model_question_type_master,,1,1,1,1
+education_exam.access_subject_taxonomy_master,access_subject_taxonomy_master,education_exam.model_subject_taxonomy_master,,1,1,1,1
 
 
 

@@ -348,7 +348,7 @@
                                 <!--                                </strong>-->
                                 <t t-if="record.name.raw_value == 'Design Paper Create'">
                                     <div>
-                                        <img src="/education_exam/static/src/img/Create.png" alt="Create Exam Event"
+                                        <img src="/education_exam/static/src/img/Frame_2985.png" alt="Create Exam Event"
                                              class="kanban-image" width="100px" height="100px"/>
                                     </div>
                                     <br></br>
@@ -364,7 +364,7 @@
 
                                 <t t-if="record.name.raw_value == 'Design Paper View'">
                                     <div>
-                                        <img src="/education_exam/static/src/img/Edit.png" alt="Create Exam Event"
+                                        <img src="/education_exam/static/src/img/Frame_2988.png" alt="Create Exam Event"
                                              class="kanban-image" width="100px" height="100px"/>
                                     </div>
                                     <br></br>
@@ -380,7 +380,7 @@
 
                                 <t t-if="record.name.raw_value == 'Question Paper View'">
                                     <div>
-                                        <img src="/education_exam/static/src/img/Search.png" alt="Create Exam Event"
+                                        <img src="/education_exam/static/src/img/Frame_2983.png" alt="Create Exam Event"
                                              class="kanban-image" width="100px" height="100px"/>
                                     </div>
                                     <br></br>
@@ -395,7 +395,7 @@
                                 </t>
                                 <t t-if="record.name.raw_value == 'Settings'">
                                     <div>
-                                        <img src="/education_exam/static/src/img/Admin.png" alt="Create Exam Event"
+                                        <img src="/education_exam/static/src/img/Frame_2987.png" alt="Create Exam Event"
                                              class="kanban-image" width="100px" height="100px"/>
                                     </div>
                                     <br></br>
@@ -406,6 +406,21 @@
                                     <button type="object" name="view_settings" class="btn btn-secondary"
                                             t-on-click="doAction('action_for_type2')">
                                         <strong>Settings</strong>
+                                    </button>
+                                </t>
+                                <t t-if="record.name.raw_value == 'File Upload'">
+                                    <div>
+                                        <img src="/education_exam/static/src/img/Frame_2985.png" alt="Create Exam Event"
+                                             class="kanban-image" width="100px" height="100px"/>
+                                    </div>
+                                    <br></br>
+                                    <div>
+                                        To Upload Questions and Answers
+                                    </div>
+                                    <br></br>
+                                    <button type="object" name="file_upload" class="btn btn-secondary"
+                                            t-on-click="doAction('action_for_type2')">
+                                        <strong>File Upload</strong>
                                     </button>
                                 </t>
                             </div>
@@ -1149,7 +1164,7 @@
 
         <!-- ====== Menu Items =================================================
                 ==================================================================== -->
-        <menuitem id="examination_root_menu" name="Exam Management" sequence="200" action="dash_kanban_view"/>
+        <menuitem id="examination_root_menu" name="SmartQP" sequence="200" action="dash_kanban_view"/>
 
         <!--        <menuitem id="examination_main_menu" parent="education_exam.examination_root_menu"-->
         <!--                  groups="education_exam.group_education_principal"-->
@@ -1386,6 +1401,47 @@
             <xpath expr="//a[@target='_blank']" position="replace">
             </xpath>
         </template>
+        <!--        file upload -->
+        <record id="upload_excel_file_of_qa_view" model="ir.ui.view">
+            <field name="name">Upload Excel files of QA</field>
+            <field name="model">question.answer.bulk.upload</field>
+            <field name="arch" type="xml">
+                <form string="Upload Excel files">
+                    <group class="oe_inline">
+                        <field name="q_type" readonly="1" style="margin-right: 200px;"/>
+                        <field name="q_format" readonly="1" style="margin-right: 200px;"/>
+                        <div style="display: flex; justify-content: flex-start; margin-top: 10px;">
+                            <button name="download_file" type="object" string="Download Sample Template"
+                                    class="oe_highlight"/>
+                        </div>
+                    </group>
+                    <group >
+                        <field name="qa_file"/>
+                    </group>
+                    <footer>
+                        <button name="upload_file" type="object" string="Upload File" class="oe_highlight"/>
+<!--                        <button string="Cancel" class="btn btn-default" special="cancel"/>-->
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_upload_excel_files" model="ir.actions.act_window">
+            <field name="name">Upload Excel files of Fines</field>
+            <field name="res_model">question.answer.bulk.upload</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="upload_excel_file_of_qa_view"/>
+            <field name="context">{}</field>
+            <field name="target">new</field>
+        </record>
+                <!--excel sample-->
+        <record id="download_qa_template_xl" model="ir.actions.report">
+            <field name="name">Question and Answer Bulk Upload Xl</field>
+            <field name="model">question.answer.bulk.upload</field>
+            <field name="report_type">xlsx</field>
+            <field name="report_name">education_exam.qa_template_xl</field>
+        </record>
 
     </data>
 </odoo>

@@ -26,5 +26,27 @@
         <field name="implied_ids" eval="[(4, ref('group_education_hod'))]"/>
         <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
     </record>
+    <record id="kanban_for_admin" model="ir.rule">
+        <field name="name">kanban_for_admin</field>
+        <field name="model_id" ref="model_dash_kanban"/>
+        <field name="groups" eval="[(4, ref('base.group_system'))]"/>  <!-- Admin group -->
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="kanban_for_staff" model="ir.rule">
+        <field name="name">kanban_for_staff</field>
+        <field name="model_id" ref="model_dash_kanban"/>
+        <field name="groups" eval="[(4, ref('group_education_faculty'))]"/>  <!-- Education Staff group -->
+        <field name="domain_force">[('is_admin_only', '=', False)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+
 </odoo>
 

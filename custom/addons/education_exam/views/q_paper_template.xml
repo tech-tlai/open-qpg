@@ -28,7 +28,7 @@
                             <td><span t-field="docs.qp_id_line_id.paper_id"/></td>
                         </tr>
                         <tr>
-                            <td><strong>Total Time:</strong></td>
+                            <td><strong>Total Time(Mins):</strong></td>
                             <td><span t-field="docs.qp_id_line_id.version_master_id.cvm_total_time"/></td>
                         </tr>
                         <tr>
